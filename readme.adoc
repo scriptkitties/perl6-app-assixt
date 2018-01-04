@@ -1,0 +1,1 @@
+resources/man/assixt.1.adoc
