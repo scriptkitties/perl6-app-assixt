@@ -6,9 +6,11 @@ perl6:
 os:
   - linux
 
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y asciidoc
+
 install:
-  - apt update
-  - apt install -y asciidoc
   - rakudobrew build zef
   - zef install --deps-only --force-resolve .
 
