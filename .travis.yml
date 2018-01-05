@@ -7,6 +7,8 @@ os:
   - linux
 
 install:
+  - apt update
+  - apt install -y asciidoc
   - rakudobrew build zef
   - zef install --deps-only --force-resolve .
 
