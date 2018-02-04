@@ -1,7 +1,7 @@
 language: perl6
 
 perl6:
-  - latest
+  - 2018.01
 
 os:
   - linux
