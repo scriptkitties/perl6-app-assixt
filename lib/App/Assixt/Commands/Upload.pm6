@@ -45,7 +45,7 @@ multi sub MAIN("upload", Str $dist, Str :$pause-id = "", Str :$pause-password = 
 
 	die "'tar' is not available on this system" unless which("tar");
 
-	run « tar xzf $dist -C $tempdir »;
+	run « tar xzf "$dist" -C "$tempdir" »;
 
 	my %meta = get-meta($tempdir.IO.add($dist.IO.extension("", :parts(2)).basename).absolute);
 	my $distname = "{%meta<name>.subst("::", "-", :g)}-{%meta<version>}";
