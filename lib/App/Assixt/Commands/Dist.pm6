@@ -51,7 +51,7 @@ multi sub MAIN(
 	}
 
 	if ($verbose) {
-		say "tar czf \"$output\" {@tar-flags} .";
+		say "tar czf {$output.perl} {@tar-flags} .";
 	}
 
 	run « tar czf "$output" {@tar-flags} .», :err;
