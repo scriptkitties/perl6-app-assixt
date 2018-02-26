@@ -9,7 +9,7 @@ use File::Temp;
 use File::Which;
 use Test;
 
-plan 4;
+plan 5;
 
 skip-rest "'tar' is not available" and exit unless which("tar");
 
@@ -59,7 +59,7 @@ subtest ":output-dir overrides config-set output-dir", {
 subtest ":output-dir set to a path with spaces", {
 	plan 2;
 
-	my Str $output-dir = "$root/output beta";
+	my Str $output-dir = "$root/output gamma";
 
 	ok MAIN(
 		"dist",
