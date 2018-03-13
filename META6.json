@@ -31,6 +31,7 @@
     "assixt": "bin/assixt"
   },
   "resources": [
+    "docopt.txt",
     "man/assixt.1.adoc"
   ],
   "tags": [
