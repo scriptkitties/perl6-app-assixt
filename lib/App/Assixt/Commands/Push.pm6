@@ -2,6 +2,9 @@
 
 use v6.c;
 
+use App::Assixt::Commands::Bump;
+use App::Assixt::Commands::Dist;
+use App::Assixt::Commands::Upload;
 use App::Assixt::Config;
 use Config;
 use Dist::Helper::Meta;
@@ -15,9 +18,11 @@ multi sub assixt(
 	Str:D $path,
 	Config:D :$config,
 ) is export {
-	say "bump";
-	say "dist";
-	say "upload";
+	chdir $path;
+
+	assixt("bump", :$config) unless $config<runtime><no-bump>;
+	my Str $dist = assixt("dist", :$config);
+	assixt("upload", $dist, :$config);
 }
 
 multi sub assixt(

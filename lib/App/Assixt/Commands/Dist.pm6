@@ -65,7 +65,7 @@ multi sub assixt(
 		}
 	}
 
-	True;
+	$output;
 }
 
 multi sub assixt(

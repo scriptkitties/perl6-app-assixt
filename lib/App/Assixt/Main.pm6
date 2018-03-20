@@ -45,6 +45,8 @@ sub MAIN(
 		|@args,
 		:$config,
 	);
+
+	True;
 }
 
 sub parse-args(
