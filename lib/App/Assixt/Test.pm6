@@ -26,7 +26,7 @@ sub create-test-module(
 ) is export {
 	run-bin($assixt-dir, «
 		new
-		'--name="Local::Test::Bootstrap::Config"'
+		"--name=\"$name\""
 		'--author="Patrick Spek"'
 		--email=p.spek@tyil.work
 		--perl=c

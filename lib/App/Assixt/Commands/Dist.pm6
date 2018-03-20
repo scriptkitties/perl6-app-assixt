@@ -13,7 +13,7 @@ unit module App::Assixt::Commands::Dist;
 multi sub assixt(
 	"dist",
 	Str:D $path,
-	Config:D $config,
+	Config:D :$config,
 ) is export {
 	chdir $path;
 
@@ -70,7 +70,7 @@ multi sub assixt(
 
 multi sub assixt(
 	"dist",
-	Config:D $config,
+	Config:D :$config,
 ) is export {
 	assixt(
 		"dist",
@@ -82,7 +82,7 @@ multi sub assixt(
 multi sub assixt(
 	"dist",
 	@paths,
-	Config:D $config,
+	Config:D :$config,
 ) is export {
 	for @paths -> $path {
 		assixt(

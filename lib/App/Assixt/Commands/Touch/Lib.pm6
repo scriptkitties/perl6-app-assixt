@@ -12,9 +12,9 @@ unit module App::Assixt::Commands::Touch::Lib;
 multi sub assixt(
 	"touch",
 	"class",
-	$provide,
+	Str:D $provide,
 	Config:D :$config
-) {
+) is export {
 	assixt(
 		"touch",
 		"lib",
@@ -27,9 +27,9 @@ multi sub assixt(
 multi sub assixt(
 	"touch",
 	"unit",
-	$provide,
+	Str:D $provide,
 	Config:D :$config
-) {
+) is export {
 	assixt(
 		"touch",
 		"lib",
@@ -43,9 +43,9 @@ multi sub assixt(
 	"touch",
 	"lib",
 	Str:D $provide,
-	Str $type,
+	Str $type = "lib",
 	Config:D :$config,
-) {
+) is export {
 	my %meta = get-meta;
 	my $path = "./lib".IO;
 
