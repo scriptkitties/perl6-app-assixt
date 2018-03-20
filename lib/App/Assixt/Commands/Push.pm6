@@ -2,60 +2,41 @@
 
 use v6.c;
 
-use App::Assixt::Commands::Bump;
-use App::Assixt::Commands::Dist;
-use App::Assixt::Commands::Upload;
-use App::Assixt::Commands::Help;
 use App::Assixt::Config;
+use Config;
 use Dist::Helper::Meta;
 use Dist::Helper::Path;
 use Dist::Helper;
 
 unit module App::Assixt::Commands::Push;
 
-multi sub MAIN(
+multi sub assixt(
 	"push",
 	Str:D $path,
-	Bool :$force = False,
-	Bool :$no-bump = False,
-	Bool :$no-user-config = False,
+	Config:D :$config,
 ) is export {
-	# Change to the given directory
-	chdir $path;
-
-	# Call all required actions in order
-	MAIN("bump", :$no-user-config) unless $no-bump;
-	MAIN("dist", :$force);
-
-	my %meta = get-meta;
-
-	MAIN(
-		"upload",
-		get-dist-path(
-			%meta<name>,
-			%meta<version>,
-			get-config(:$no-user-config)<assixt><distdir>
-		),
-	);
+	say "bump";
+	say "dist";
+	say "upload";
 }
 
-multi sub MAIN(
+multi sub assixt(
 	"push",
-	Bool :$force = False,
-	Bool :$no-bump = False,
-	Bool :$no-user-config = False,
+	Config:D :$config,
 ) is export {
-	MAIN("push", ".", :$force, :$no-bump, :$no-user-config);
+	assixt(
+		"push",
+		".",
+		:$config,
+	)
 }
 
-multi sub MAIN(
+multi sub assixt(
 	"push",
-	@paths,
-	Bool :$force = False,
-	Bool :$no-bump = False,
-	Bool :$no-user-config = False,
+	Str @paths,
+	Config:D :$config,
 ) is export {
-	for make-paths-absolute(@paths) -> $path {
-		MAIN("push", $path, :$force, :$no-bump, :$no-user-config);
+	for @paths -> $path {
+		assixt("push", $path, :$config)
 	}
 }
