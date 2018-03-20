@@ -5,6 +5,7 @@ use v6.c;
 use App::Assixt::Commands::Bump;
 use App::Assixt::Commands::Dist;
 use App::Assixt::Commands::Upload;
+use App::Assixt::Commands::Help;
 use App::Assixt::Config;
 use Dist::Helper::Meta;
 use Dist::Helper::Path;
