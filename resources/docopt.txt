@@ -19,7 +19,7 @@ Usage: assixt [options] <command> [arguments]...
   assixt [--pause-id=<id>] [--pause-password=<pass>] upload <dist>...
 
 Options:
-  -h --help             Show this help output.
+  --help                Show this help output.
   --config-file=<file>  Use a specified configuration file.
   --force               Try to continue, no matter what.
   --no-user-config      Don't use the user-specific configuration.
