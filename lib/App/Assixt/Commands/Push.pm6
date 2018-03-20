@@ -18,12 +18,13 @@ multi sub MAIN(
 	Str:D $path,
 	Bool :$force = False,
 	Bool :$no-bump = False,
+	Bool :$no-user-config = False,
 ) is export {
 	# Change to the given directory
 	chdir $path;
 
 	# Call all required actions in order
-	MAIN("bump") unless $no-bump;
+	MAIN("bump", :$no-user-config) unless $no-bump;
 	MAIN("dist", :$force);
 
 	my %meta = get-meta;
@@ -33,7 +34,7 @@ multi sub MAIN(
 		get-dist-path(
 			%meta<name>,
 			%meta<version>,
-			get-config()<assixt><distdir>
+			get-config(:$no-user-config)<assixt><distdir>
 		),
 	);
 }
@@ -42,8 +43,9 @@ multi sub MAIN(
 	"push",
 	Bool :$force = False,
 	Bool :$no-bump = False,
+	Bool :$no-user-config = False,
 ) is export {
-	MAIN("push", ".", :$force, :$no-bump);
+	MAIN("push", ".", :$force, :$no-bump, :$no-user-config);
 }
 
 multi sub MAIN(
@@ -51,8 +53,9 @@ multi sub MAIN(
 	@paths,
 	Bool :$force = False,
 	Bool :$no-bump = False,
+	Bool :$no-user-config = False,
 ) is export {
 	for make-paths-absolute(@paths) -> $path {
-		MAIN("push", $path, :$force, :$no-bump);
+		MAIN("push", $path, :$force, :$no-bump, :$no-user-config);
 	}
 }
