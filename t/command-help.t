@@ -2,13 +2,15 @@
 
 use v6.c;
 
-use App::Assixt::Commands::Help;
+use App::Assixt::Test;
 use Test;
 
-multi sub MAIN { 0 }
+plan 3;
 
-plan 1;
+my $assixt = $*CWD;
 
-ok MAIN("help"), "Help command does not fail";
+ok run-bin($assixt), "USAGE is shown when no commands are passed";
+ok run-bin($assixt, "help"), "Help command does not fail";
+ok run-bin($assixt, "--help"), "--help option does not fail";
 
 # vim: ft=perl6 noet

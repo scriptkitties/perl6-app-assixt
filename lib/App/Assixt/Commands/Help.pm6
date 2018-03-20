@@ -2,24 +2,22 @@
 
 use v6.c;
 
+use App::Assixt::Usage;
+use Config;
+
 unit module App::Assixt::Commands::Help;
 
-sub USAGE is export
-{
-	%?RESOURCES<docopt.txt>.slurp.say;
-}
-
-multi sub MAIN("help") is export
+multi sub assixt("help", Config:D :$config) is export
 {
 	USAGE
 }
 
-multi sub MAIN("-h") is export
+multi sub assixt("-h", Config:D :$config) is export
 {
 	USAGE
 }
 
-multi sub MAIN("--help") is export
+multi sub assixt(Config:D :$config where $config<runtime><help>) is export
 {
 	USAGE
 }
