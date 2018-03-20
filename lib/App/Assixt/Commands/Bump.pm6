@@ -2,7 +2,6 @@
 
 use v6.c;
 
-use App::Assixt::Commands::Dist;
 use App::Assixt::Input;
 use Dist::Helper::Meta;
 use SemVer;
