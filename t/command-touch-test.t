@@ -2,29 +2,19 @@
 
 use v6.c;
 
+use App::Assixt::Test;
 use File::Temp;
-use App::Assixt::Commands::New;
-use App::Assixt::Commands::Touch::Test;
 use Test;
 
-multi sub MAIN { 0 }
-
+my $assixt = $*CWD;
 my $root = tempdir;
 
 chdir $root;
 
 plan 2;
 
-ok MAIN(
-	"new",
-	name => "Local::Test::Touch::Test",
-	author => "Patrick Spek",
-	email => "p.spek@tyil.work",
-	perl => "c",
-	description => "Nondescript",
-	license => "GPL-3.0",
-	no-user-config => True,
-), "assixt new Local::Test::Touch::Test";
+ok create-test-module($assixt, "Local::Test::Touch::Test"), "assixt new Local::Test::Touch::Test";
+chdir "$root/perl6-Local-Test-Touch-Test";
 
 subtest "Touch test files", {
 	my @tests = <
@@ -39,7 +29,7 @@ subtest "Touch test files", {
 	for @tests -> $test {
 		chdir $module-dir;
 
-		ok MAIN("touch", "test", $test), "assixt touch test $test";
+		ok run-bin($assixt, « touch test $test »), "assixt touch test $test";
 		ok "$module-dir/t/$test.t".IO.e, "t/$test.t exists";
 	}
 }
