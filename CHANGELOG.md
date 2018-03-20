@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic
 Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2018-03-10
+### Changed
+- Fix a bug which resulted in some commands running twice on a single invocation
+- Test suite updated to call the program directly (greatly increases test time, sadly)
+
 ## [0.2.0] - 2018-03-20
 ### Added
 - A CHANGELOG is now present to keep track of changes between versions
