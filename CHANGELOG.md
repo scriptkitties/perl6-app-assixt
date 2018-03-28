@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic
 Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [UNRELEASED]
+### Changed
+- Update `Config` dependency to greatly improve performance
+- Rewrite Command loading to improve performance
+- User tests to ensure all files can be used correctly
+
 ## [0.2.2] - 2018-03-10
 ### Changed
 - Tests now show a notice to indicate testing will take a long time
