@@ -11,11 +11,15 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 - Rewrite Command loading to improve performance
 - User tests to ensure all files can be used correctly
 
-## [0.2.2] - 2018-03-10
+## [0.2.3] - 2018-03-23
+### Changed
+- Slow bin tests are now marked as author tests
+
+## [0.2.2] - 2018-03-21
 ### Changed
 - Tests now show a notice to indicate testing will take a long time
 
-## [0.2.1] - 2018-03-10
+## [0.2.1] - 2018-03-21
 ### Changed
 - Fix a bug which resulted in some commands running twice on a single invocation
 - Test suite updated to call the program directly (greatly increases test time, sadly)
