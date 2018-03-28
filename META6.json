@@ -6,9 +6,6 @@
     "Dist::Helper:ver<0.19.2+>",
     "Terminal::Getpass:ver<0.0.5+>"
   ],
-  "test-depends": [
-    "JSON::Fast"
-  ],
   "description": "A CLI frontend to Dist::Helper",
   "license": "GPL-3.0",
   "name": "App::Assixt",
@@ -48,5 +45,8 @@
     "devel",
     "ecosystems"
   ],
-  "version": "0.2.3"
+  "test-depends": [
+    "JSON::Fast"
+  ],
+  "version": "0.2.4"
 }
