@@ -25,6 +25,7 @@
     "App::Assixt::Commands::New": "lib/App/Assixt/Commands/New.pm6",
     "App::Assixt::Commands::Push": "lib/App/Assixt/Commands/Push.pm6",
     "App::Assixt::Commands::Test": "lib/App/Assixt/Commands/Test.pm6",
+    "App::Assixt::Commands::Touch": "lib/App/Assixt/Commands/Touch.pm6",
     "App::Assixt::Commands::Touch::Bin": "lib/App/Assixt/Commands/Touch/Bin.pm6",
     "App::Assixt::Commands::Touch::Class": "lib/App/Assixt/Commands/Touch/Class.pm6",
     "App::Assixt::Commands::Touch::Lib": "lib/App/Assixt/Commands/Touch/Lib.pm6",
