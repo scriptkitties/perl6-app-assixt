@@ -6,8 +6,11 @@ and this project adheres to [Semantic
 Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [UNRELEASED]
-#### Added
+### Added
 - `api` flag added to META6.json
+
+### Changed
+- `author` field now defaults to being an array
 
 ## [0.2.4] - 2018-03-29
 ### Changed
