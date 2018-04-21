@@ -10,7 +10,9 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 - `api` flag added to META6.json
 
 ### Changed
-- `author` field now defaults to being an array
+- `author` field now defaults to being an array.
+- `assixt test` now calls `run` in sink context, to avoid output of a Failure
+  when `prove` found failing tests. [GitHub#7](https://github.com/scriptkitties/perl6-app-assixt/issues/7)
 
 ## [0.2.4] - 2018-03-29
 ### Changed
