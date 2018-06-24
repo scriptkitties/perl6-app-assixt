@@ -21,6 +21,7 @@ sub get-config(
 		external => %(
 			git => True,
 			travis => True,
+			gitlab-ci => True,
 		),
 		new-module => %(
 			author => "",

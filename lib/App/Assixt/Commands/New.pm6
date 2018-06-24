@@ -61,6 +61,15 @@ class App::Assixt::Commands::New
 		template("gitignore", ".gitignore", clobber => $config<force>) if $config<external><git> && !$config<runtime><no-git>;
 		template("travis.yml", ".travis.yml", clobber => $config<force>) if $config<external><travis> && !$config<runtime><no-travis>;
 
+		if ($config<external><gitlab-ci> && !$config<runtime><no-gitlab-ci>) {
+			my %context =
+				moduleName => $config<runtime><name>,
+				dirName => $dir-name,
+			;
+
+			template("gitlab-ci.yml", ".gitlab-ci.yml", :%context, clobber => $config<force>);
+		}
+
 		# Write some files
 		put-meta(:%meta);
 
