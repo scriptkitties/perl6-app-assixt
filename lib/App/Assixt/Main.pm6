@@ -21,6 +21,7 @@ sub MAIN(
 	$config<runtime> = %();
 	$config<force> = $force;
 	$config<verbose> = $verbose;
+	$config<file> = $config-file;
 
 	@args = parse-args(@args, :$config);
 

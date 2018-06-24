@@ -28,7 +28,7 @@ class App::Assixt::Commands::Bootstrap::Config
 			exit unless confirm("Save?");
 		}
 
-		put-config(:$config, path => $config<runtime><config-file> // "");
+		put-config(:$config, path => $config<file> // "");
 
 		say "Configuration updated";
 	}

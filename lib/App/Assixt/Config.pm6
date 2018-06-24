@@ -72,6 +72,7 @@ multi sub put-config(Config:D :$config, Str:D :$path) is export
 	return put-config(:$config) if $path eq "";
 
 	$config<runtime>:delete if $config<runtime>:exists;
+	$config<file>:delete if $config<file>:exists;
 
 	$config.write($path);
 }
