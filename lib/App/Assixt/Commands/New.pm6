@@ -54,7 +54,7 @@ class App::Assixt::Commands::New
 		chdir $dir-name;
 		mkdir "bin" unless $config<force> && "bin".IO.d;
 		mkdir "lib" unless $config<force> && "lib".IO.d;
-		mkdir "resources" unless $config<force> && "r".IO.d;
+		mkdir "resources" unless $config<force> && "resources".IO.d;
 		mkdir "t" unless $config<force> && "t".IO.d;
 
 		template("editorconfig", ".editorconfig", context => $config<style>, clobber => $config<force>);
