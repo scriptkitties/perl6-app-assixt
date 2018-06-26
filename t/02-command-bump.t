@@ -6,6 +6,8 @@ use Test;
 
 BEGIN plan :skip-all<set AUTHOR_TESTING=1 to run bin tests> unless %*ENV<AUTHOR_TESTING>;
 
+use App::Assixt::Commands::Touch::Bin;
+use App::Assixt::Config;
 use App::Assixt::Test;
 use Dist::Helper::Meta;
 use File::Temp;
@@ -20,6 +22,8 @@ chdir $root;
 ok create-test-module($assixt, "Local::Test::Bump"), "assixt new Local::Test::Bump";
 
 chdir "$root/perl6-Local-Test-Bump";
+run("bin", "test-bin", get-config());
+run("class", "Local::Test::Bump::Test::Class", get-config());
 
 subtest "Bump patch version", {
 	plan 3;
