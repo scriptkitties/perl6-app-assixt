@@ -13,6 +13,8 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 ### Changed
 - `bump` now also updates the `=VERSION` pod blocks in files referenced in the
   `META6.json`'s `provides` key.
+- `bootstrap config` should now work as expected again. Some unnecessary keys
+  are new being filtered out, and the save mechanism should work properly now.
 
 ## [0.4.0] - 2018-06-24
 ### Added

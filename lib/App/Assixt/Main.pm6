@@ -9,12 +9,12 @@ use Config;
 unit module App::Assixt::Main;
 
 sub MAIN(
-	Str $command = "help",
+	Str:D $command = "help",
 	*@args,
-	Str :$config-file,
-	Bool :$force = False,
-	Bool :$no-user-config = False,
-	Bool :$verbose = False,
+	Str:D :$config-file = "",
+	Bool:D :$force = False,
+	Bool:D :$no-user-config = False,
+	Bool:D :$verbose = False,
 ) is export {
 	my Config $config = get-config(:$config-file, :$no-user-config);
 

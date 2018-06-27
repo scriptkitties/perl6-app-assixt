@@ -25,10 +25,10 @@ class App::Assixt::Commands::Bootstrap::Config
 
 		if (!$config<force>) {
 			say "$option = {$config{$option}}";
-			exit unless confirm("Save?");
+			return unless confirm("Save?");
 		}
 
-		put-config(:$config, path => $config<file> // "");
+		put-config(:$config, path => $config<file>);
 
 		say "Configuration updated";
 	}
@@ -53,13 +53,28 @@ class App::Assixt::Commands::Bootstrap::Config
 		"config",
 		Config:D :$config,
 	) {
+		my @ignored-keys = <
+			file
+			force
+			verbose
+			pause.id
+		>;
+
 		for $config.keys -> $option {
+			next if @ignored-keys (cont) $option;
+
 			self.run(
 				"config",
 				$option,
 				:$config,
 			);
 		}
+
+		return unless $config<force> || confirm("Save?");
+
+		put-config(:$config, path => $config<file>);
+
+		say "Configuration updated";
 	}
 }
 

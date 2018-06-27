@@ -6,8 +6,12 @@ use Terminal::Getpass;
 
 unit module App::Assixt::Input;
 
-multi sub ask(Str $message, Any :$default = "" --> Str) is export
-{
+multi sub ask(
+	Str:D $message,
+	Any:D :$default = "",
+	Bool:D :$empty = False,
+	--> Str
+) is export {
 	my Str $prompt = $message;
 
 	if (~$default ne "") {
@@ -21,12 +25,17 @@ multi sub ask(Str $message, Any :$default = "" --> Str) is export
 
 		return $input if $input ne "";
 		return ~$default if ~$default ne "";
+		return "" if $empty;
 	}
 }
 
-multi sub ask(Str:D $message, Any:D $default = "" --> Str) is export
-{
-	ask($message, :$default);
+multi sub ask(
+	Str:D $message,
+	Any:D $default = "",
+	Bool:D $empty = False,
+	--> Str
+) is export {
+	ask($message, :$default, :$empty);
 }
 
 multi sub confirm(
