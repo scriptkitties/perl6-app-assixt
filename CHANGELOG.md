@@ -9,6 +9,7 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 ### Added
 - `touch` will now add a pod structure at the bottom of `bin`, `lib`, `class`
   and `unit` templates.
+- `assixt` has been given a pod document for use with `p6man`.
 
 ### Changed
 - `bump` now also updates the `=VERSION` pod blocks in files referenced in the
