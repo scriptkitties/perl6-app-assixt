@@ -36,6 +36,22 @@ class App::Assixt::Commands::Bump
 
 		put-meta(:%meta);
 
+		# Update =VERSION pod blocks
+		for %meta<provides>.values -> $file {
+			my Str $updated-file = "";
+
+			for $file.IO.lines -> $line {
+				if $line ~~ / ^ ( \h* "=VERSION" \s+ ) \S+ (.*)/ {
+					$updated-file ~= "{$0}{~$version}{$1}\n";
+					next;
+				}
+
+				$updated-file ~= "$line\n";
+			}
+
+			spurt($file, $updated-file);
+		}
+
 		say "{%meta<name>} bumped to to {%meta<version>}";
 	}
 

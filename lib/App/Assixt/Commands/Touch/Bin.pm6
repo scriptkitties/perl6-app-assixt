@@ -26,6 +26,8 @@ class App::Assixt::Commands::Touch::Bin
 		my %context = %(
 			perl => %meta<perl>,
 			vim => template("vim-line/$config<style><indent>", context => $config<style>).trim-trailing,
+            author => %meta<authors>.join(", "),
+            version => %meta<version>,
 			:$provide,
 		);
 
