@@ -6,6 +6,10 @@ and this project adheres to [Semantic
 Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [UNRELEASED]
+### Added
+- `touch` will now add a pod structure at the bottom of `bin`, `lib`, `class`
+  and `unit` templates.
+
 ### Changed
 - `bump` now also updates the `=VERSION` pod blocks in files referenced in the
   `META6.json`'s `provides` key.
