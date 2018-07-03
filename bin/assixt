@@ -3,3 +3,81 @@
 use v6.c;
 
 use App::Assixt::Main;
+
+=begin pod
+
+=NAME    assixt
+=AUTHOR  Patrick Spek <p.spek@tyil.work>
+=VERSION 0.4.0
+=LICENSE GNU General Public License, version 3
+
+=head1 SYNOPSIS
+
+=item1 assixt [options] <command> [arguments]
+
+=item2 assixt bootstrap config <option> [value]
+=item2 assixt [--dir=/usr/share/man] bootstrap man
+=item2 assixt bump [ patch | minor | major ]
+=item2 assixt [--no-files] [--no-meta] clean [path]
+=item2 assixt [--no-install] depend <module>...
+=item2 assixt dist [path]...
+=item2 assixt help
+=item2 assixt [--no-git] [--no-travis] new [name]
+=item2 assixt [--no-bump] push [path]...
+=item2 assixt test
+=item2 assixt touch bin <name>
+=item2 assixt touch class <name>
+=item2 assixt touch resource <name>
+=item2 assixt touch test <name>
+=item2 assixt touch unit <name>
+=item2 assixt [--pause-id=<id>] [--pause-password=<pass>] upload <dist>...
+
+=head1 OPTIONS
+
+=defn --help
+Show help output.
+
+=defn --config-file=<file>
+Use the configuration specified in C<file>.
+
+=defn --force
+Try to continue, no matter what. This will skip every confirmation dialogue, and
+assume you want to proceed with everything.
+
+=defn --no-user-config
+Do not load user-specific configuration. Useful for testing or debugging
+purposes.
+
+=defn --verbose
+Add additional output. Useful for testing or debugging.
+
+=head1 DESCRIPTION
+
+Assixt is a Perl 6 program to assist Perl 6 module developers. It will take care
+of keeping your C<META6.json> in check as you extend your module, so you don't
+have to.
+
+=head1 EXAMPLES
+
+=head2 Extended usage information
+
+=begin input
+assixt help
+=end input
+
+This will show a quick overview of what the possible ways of running C<assixt>
+are.
+
+=head2 Bump the version
+
+=begin input
+assixt bump minor
+=end input
+
+C<assixt> assumes L<semantic versioning|https://semver.org/>, so you can either
+bump the I<major>, I<minor> or I<patch> level of the version. Bumping the
+version number will update the C<META6.json> file. Unless C<--no-bump-provides>
+is given, the C<=VERSION> pod blocks found in the files referenced in the
+C<provides> key of your C<META6.json> will also be updated.
+
+=end pod
