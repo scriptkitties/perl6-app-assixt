@@ -10,6 +10,8 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 - `touch` will now add a pod structure at the bottom of `bin`, `lib`, `class`
   and `unit` templates.
 - `assixt` has been given a pod document for use with `p6man`.
+- New projects will now contain a `CHANGELOG.md` file, based on the
+  [Keep a Changelog](https://keepachangelog.com/en/1.0.0) specification.
 
 ### Changed
 - `bump` now also updates the `=VERSION` pod blocks in files referenced in the

@@ -60,6 +60,7 @@ class App::Assixt::Commands::New
 		template("editorconfig", ".editorconfig", context => $config<style>, clobber => $config<force>);
 		template("gitignore", ".gitignore", clobber => $config<force>) if $config<external><git> && !$config<runtime><no-git>;
 		template("travis.yml", ".travis.yml", clobber => $config<force>) if $config<external><travis> && !$config<runtime><no-travis>;
+		template("changelog.md", "CHANGELOG.md", clobber => $config<force>) if !$config<runtime><no-changelog>;
 
 		if ($config<external><gitlab-ci> && !$config<runtime><no-gitlab-ci>) {
 			my %context =

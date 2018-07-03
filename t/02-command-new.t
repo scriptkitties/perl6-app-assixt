@@ -11,7 +11,7 @@ use App::Assixt::Test;
 use Dist::Helper::Meta;
 use File::Temp;
 
-plan 5;
+plan 6;
 
 my $assixt = $*CWD;
 my $root = tempdir;
@@ -27,7 +27,7 @@ my %test-meta = %(
 my $config = get-config(:no-user-config);
 
 subtest "Create a new module", {
-	plan 7;
+	plan 8;
 
 	chdir $root;
 
@@ -48,6 +48,7 @@ subtest "Create a new module", {
 	ok "$module-root/.gitignore".IO.e, "Gitignore created";
 	ok "$module-root/.gitlab-ci.yml".IO.e, "GitLab CI config created";
 	ok "$module-root/.travis.yml".IO.e, "Travis config created";
+	ok "$module-root/CHANGELOG.md".IO.e, "CHANGELOG created";
 
 	subtest "Verify META6.json", {
 		plan 10;
@@ -68,7 +69,7 @@ subtest "Create a new module", {
 };
 
 subtest "Create a new module with force", {
-	plan 7;
+	plan 8;
 
 	chdir $root;
 
@@ -90,6 +91,7 @@ subtest "Create a new module with force", {
 	ok "$module-root/.gitlab-ci.yml".IO.e, "GitLab CI config created";
 	ok "$module-root/.editorconfig".IO.e, "Editorconfig created";
 	ok "$module-root/.travis.yml".IO.e, "Travis config created";
+	ok "$module-root/CHANGELOG.md".IO.e, "CHANGELOG created";
 
 	subtest "Verify META6.json", {
 		plan 10;
@@ -110,7 +112,7 @@ subtest "Create a new module with force", {
 };
 
 subtest "Create a new module without gitignore", {
-	plan 6;
+	plan 7;
 
 	chdir $root;
 
@@ -131,12 +133,13 @@ subtest "Create a new module without gitignore", {
 	ok "$module-root/.editorconfig".IO.e, "Editorconfig created";
 	ok "$module-root/.gitlab-ci.yml".IO.e, "GitLab CI config created";
 	ok "$module-root/.travis.yml".IO.e, "Travis config created";
+	ok "$module-root/CHANGELOG.md".IO.e, "CHANGELOG created";
 
 	nok "$module-root/.gitignore".IO.e, "Gitignore missing";
 };
 
 subtest "Create a new module without Travis info", {
-	plan 6;
+	plan 7;
 
 	chdir $root;
 
@@ -157,12 +160,13 @@ subtest "Create a new module without Travis info", {
 	ok "$module-root/.editorconfig".IO.e, "Editorconfig created";
 	ok "$module-root/.gitignore".IO.e, "Gitignore created";
 	ok "$module-root/.gitlab-ci.yml".IO.e, "GitLab CI config created";
+	ok "$module-root/CHANGELOG.md".IO.e, "CHANGELOG created";
 
 	nok "$module-root/.travis.yml".IO.e, "Travis config missing";
 };
 
 subtest "Create a new module without GitLab CI info", {
-	plan 6;
+	plan 7;
 
 	chdir $root;
 
@@ -183,8 +187,36 @@ subtest "Create a new module without GitLab CI info", {
 	ok "$module-root/.editorconfig".IO.e, "Editorconfig created";
 	ok "$module-root/.gitignore".IO.e, "Gitignore created";
 	ok "$module-root/.travis.yml".IO.e, "Travis config created";
+	ok "$module-root/CHANGELOG.md".IO.e, "CHANGELOG created";
 
 	nok "$module-root/.gitlab-ci.yml".IO.e, "GitLab CI config missing";
+};
+
+subtest "Create a new module without a changelog", {
+	plan 7;
+
+	chdir $root;
+
+	ok run-bin($assixt, «
+		new
+		"--name=\"Local::Test::NoChangelogModule\""
+		"--author=\"%test-meta<author>\""
+		"--email=%test-meta<email>"
+		--perl=c
+		"--description=\"%test-meta<description>\""
+		"--license=%test-meta<license>"
+		--no-changelog
+	»), "assixt new --no-changelog";
+
+	my $module-root = "$root/{$config<new-module><dir-prefix>}Local-Test-NoChangelogModule";
+
+	ok $module-root.IO.d, "Module directory created";
+	ok "$module-root/.editorconfig".IO.e, "Editorconfig created";
+	ok "$module-root/.gitignore".IO.e, "Gitignore created";
+	ok "$module-root/.travis.yml".IO.e, "Travis config created";
+	ok "$module-root/.gitlab-ci.yml".IO.e, "GitLab CI config created";
+
+	nok "$module-root/CHANGELOG.md".IO.e, "CHANGELOG missing";
 };
 
 # vim: ft=perl6 noet
