@@ -84,7 +84,7 @@ class App::Assixt::Commands::Bump
 		return unless $changelog.e && $changelog.f;
 
 		my Str $updated-file = "";
-		my Str $datestamp = Date.new(DateTime.now).yyyy-mm-dd;
+		my Str $datestamp = Date.new(now).yyyy-mm-dd;
 
 		for $changelog.lines -> $line {
 			given $line {
