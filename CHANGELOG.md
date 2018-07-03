@@ -14,8 +14,11 @@ Versioning](http://semver.org/spec/v2.0.0.html).
   [Keep a Changelog](https://keepachangelog.com/en/1.0.0) specification.
 
 ### Changed
-- `bump` now also updates the `=VERSION` pod blocks in files referenced in the
-  `META6.json`'s `provides` key.
+- `bump` will update other files to show the new version number as well:
+  - Files referenced in the `provides` key in `META6.json` will have the
+    `=VERSION` blocks updated with the new version.
+  - The `CHANGELOG.md` file will have it's `UNRELEASED` block changed to the new
+    version number with the current date.
 - `bootstrap config` should now work as expected again. Some unnecessary keys
   are new being filtered out, and the save mechanism should work properly now.
 

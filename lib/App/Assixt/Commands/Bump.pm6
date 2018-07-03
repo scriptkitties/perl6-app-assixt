@@ -36,23 +36,9 @@ class App::Assixt::Commands::Bump
 
 		put-meta(:%meta);
 
-		# Update =VERSION pod blocks
-		if (!$config<runtime><no-bump-provides>) {
-			for %meta<provides>.values -> $file {
-				my Str $updated-file = "";
-
-				for $file.IO.lines -> $line {
-					if $line ~~ / ^ ( \h* "=VERSION" \s+ ) \S+ (.*)/ {
-						$updated-file ~= "{$0}{~$version}{$1}\n";
-						next;
-					}
-
-					$updated-file ~= "$line\n";
-				}
-
-				spurt($file, $updated-file);
-			}
-		}
+		# Bump other files
+		self!bump-provides($config, ~$version, %meta<provides>.values);
+		self!bump-changelog($config, ~$version);
 
 		say "{%meta<name>} bumped to to {%meta<version>}";
 	}
@@ -84,5 +70,60 @@ class App::Assixt::Commands::Bump
 		}
 
 		self.run(@bump-types[$bump], :$config);
+	}
+
+	#| Bump the changelog.
+	method !bump-changelog (
+		Config:D $config,
+		Str:D $version,
+	) {
+		return if $config<runtime><no-bump-changelog>;
+
+		my IO::Path $changelog = "CHANGELOG.md".IO;
+
+		return unless $changelog.e && $changelog.f;
+
+		my Str $updated-file = "";
+		my Str $datestamp = Date.new(DateTime.now).yyyy-mm-dd;
+
+		for $changelog.lines -> $line {
+			given $line {
+				when / ^ ( "#"+ \h+ ) "[UNRELEASED]" / {
+					$updated-file ~= "{$0}[$version] - $datestamp\n";
+				}
+				default {
+					$updated-file ~= "$line\n";
+				}
+			}
+		}
+
+		$changelog.spurt($updated-file);
+	}
+
+	#| Bump the =VERSION blocks in pod sections found in files declared in
+	#| META6.json's "provides" key.
+	method !bump-provides (
+		Config:D $config,
+		Str:D $version,
+		*@files,
+	) {
+		return if $config<runtime><no-bump-provides>;
+
+		for @files -> $file {
+			my Str $updated-file = "";
+
+			for $file.IO.lines -> $line {
+				given $line {
+					when / ^ ( \h* "=VERSION" \s+ ) \S+ (.*)/ {
+						$updated-file ~= "{$0}{$version}{$1}\n";
+					}
+					default {
+						$updated-file ~= "$line\n";
+					}
+				}
+			}
+
+			spurt($file, $updated-file);
+		}
 	}
 }
