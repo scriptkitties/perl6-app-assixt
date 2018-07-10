@@ -30,6 +30,7 @@
     "App::Assixt::Commands::Touch::Bin": "lib/App/Assixt/Commands/Touch/Bin.pm6",
     "App::Assixt::Commands::Touch::Class": "lib/App/Assixt/Commands/Touch/Class.pm6",
     "App::Assixt::Commands::Touch::Lib": "lib/App/Assixt/Commands/Touch/Lib.pm6",
+    "App::Assixt::Commands::Touch::Meta": "lib/App/Assixt/Commands/Touch/Meta.pm6",
     "App::Assixt::Commands::Touch::Resource": "lib/App/Assixt/Commands/Touch/Resource.pm6",
     "App::Assixt::Commands::Touch::Test": "lib/App/Assixt/Commands/Touch/Test.pm6",
     "App::Assixt::Commands::Touch::Unit": "lib/App/Assixt/Commands/Touch/Unit.pm6",
@@ -37,6 +38,7 @@
     "App::Assixt::Config": "lib/App/Assixt/Config.pm6",
     "App::Assixt::Input": "lib/App/Assixt/Input.pm6",
     "App::Assixt::Main": "lib/App/Assixt/Main.pm6",
+    "App::Assixt::Templates": "lib/App/Assixt/Templates.pm6",
     "App::Assixt::Usage": "lib/App/Assixt/Usage.pm6",
     "assixt": "bin/assixt"
   },

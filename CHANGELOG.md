@@ -12,6 +12,8 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 - `assixt` has been given a pod document for use with `p6man`.
 - New projects will now contain a `CHANGELOG.md` file, based on the
   [Keep a Changelog](https://keepachangelog.com/en/1.0.0) specification.
+- `touch meta` has been added to create meta file templates, including a `readme`,
+  `gitlab-ci` configuration and `gitignore` files.
 
 ### Changed
 - `bump` will update other files to show the new version number as well:
