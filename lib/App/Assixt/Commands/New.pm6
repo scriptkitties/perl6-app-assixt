@@ -4,11 +4,12 @@ use v6.c;
 
 use App::Assixt::Config;
 use App::Assixt::Input;
+use Config;
 use Dist::Helper::Meta;
 use Dist::Helper::Template;
-use Config;
 use File::Directory::Tree;
 use File::Which;
+use Hash::Merge;
 
 class App::Assixt::Commands::New
 {
@@ -33,8 +34,8 @@ class App::Assixt::Commands::New
 		}
 
 		# Create the initial %meta
-		my %meta = %(
-			meta-version => 0,
+		my %meta = merge-hash(new-meta, %(
+			version => "0.0.0",
 			perl => "6.$config<runtime><perl>",
 			name => $config<runtime><name>,
 			description => $config<runtime><description>,
@@ -42,12 +43,7 @@ class App::Assixt::Commands::New
 			authors => [
 				"$config<runtime><author> <$config<runtime><email>>"
 			],
-			tags => [],
-			version => "0.0.0",
-			provides => %(),
-			depends => [],
-			resources => [],
-		);
+		));
 
 		# Create the module skeleton
 		mkdir $dir-name unless $dir-name.IO.d;
