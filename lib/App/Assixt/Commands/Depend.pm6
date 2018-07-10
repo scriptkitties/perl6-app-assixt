@@ -9,7 +9,7 @@ class App::Assixt::Commands::Depend
 {
 	multi method run(
 		Str:D $module,
-		Config :$config,
+		Config:D :$config!,
 	) {
 		# Get the meta info
 		my %meta = get-meta;
@@ -34,15 +34,9 @@ class App::Assixt::Commands::Depend
 	}
 
 	multi method run(
-		Str @modules,
-		Config :$config,
+		*@modules,
+		Config:D :$config!,
 	) {
-		for @modules -> $module {
-			self.run(
-				"depend",
-				$module,
-				:$config
-			);
-		}
+		samewith($_, :$config) for @modules;
 	}
 }

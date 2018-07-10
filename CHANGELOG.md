@@ -23,6 +23,7 @@ Versioning](http://semver.org/spec/v2.0.0.html).
     version number with the current date.
 - `bootstrap config` should now work as expected again. Some unnecessary keys
   are new being filtered out, and the save mechanism should work properly now.
+- `depend` can now correctly be called with multiple arguments.
 
 ## [0.4.0] - 2018-06-24
 ### Added
