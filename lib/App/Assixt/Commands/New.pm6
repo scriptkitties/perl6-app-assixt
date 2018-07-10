@@ -35,6 +35,7 @@ class App::Assixt::Commands::New
 
 		# Create the initial %meta
 		my %meta = merge-hash(new-meta, %(
+			api => "0",
 			version => "0.0.0",
 			perl => "6.$config<runtime><perl>",
 			name => $config<runtime><name>,
