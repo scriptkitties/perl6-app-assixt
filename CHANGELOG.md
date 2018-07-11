@@ -14,6 +14,9 @@ Versioning](http://semver.org/spec/v2.0.0.html).
   [Keep a Changelog](https://keepachangelog.com/en/1.0.0) specification.
 - `touch meta` has been added to create meta file templates, including a `readme`,
   `gitlab-ci` configuration and `gitignore` files.
+- An `undepend` command has been added to remove existing dependencies. Note
+  that, like any other module related activity, it is case-sensitive on the
+  module names.
 
 ### Changed
 - `bump` will update other files to show the new version number as well:
