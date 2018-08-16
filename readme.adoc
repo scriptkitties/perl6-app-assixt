@@ -1,1 +1,88 @@
-resources/man/assixt.1.adoc
+= Assixt
+:toc: preamble
+
+`assixt` is a tool to help Perl 6 module developers along their journey of
+module inception, all the way through publishing it through CPAN.
+
+== Installation
+
+`assixt` itself is available on CPAN, from the module `App::Assixt`. You can
+use `zef` to get it installed on your machine:
+
+    zef install App::Assixt
+
+Installation can take a while (due to dependencies and their tests), so sit
+back and relax for a bit.
+
+== Basic usage
+
+The most basic commands you will want to use are `new`, `touch`, and `push`.
+The first time you start using it, you are probably interested in `bootstrap
+config` as well, but there's a high chance you'll only use it once, so you
+don't have to remember it. This document only lists the bare basic information
+required to get you started, and I would recommend you read the module
+documentation to get familiar with all the possibilities.
+
+=== `bootstrap config`
+
+This command will walk through the configuration options, and save the values
+you supply to the configuration file. Some of these will simply be default
+values used when making use of `assixt`, so setting them to what you commonly
+would want can save you some time and effort later on in your life.
+
+    assixt bootstrap config
+
+=== `new`
+
+The `new` command will ask you for some input, and then create the entire
+module skeleton for you.
+
+=== `touch`
+
+Using `touch` you can add new files to your module. While you could use the
+regular POSIX `touch` command for this, you may want to consider using the
+`assixt` version anyway. In addition to simply making the file, `assixt` will
+also update your `META6.json` to reference the newly created file. If
+directories need to be made to hold the file, these will also be made for you.
+And lastly, a small skeleton will be created in the file itself, so you don't
+need to bother yourself with the boilerplates.
+
+The `touch` command requires two arguments: the type of thing you want to add,
+and the name it should get. The types you'll want to use most often are `class`
+and `unit`.
+
+    assixt touch class Foo::Bar
+    assixt touch unit Bar::Foo
+
+=== `push`
+
+Push is actually a shorthand for `bump`, `dist` and `upload`. As such, it will
+bump the version number and update the version number throughout the files in
+your module, then create a distribution of it (as a `.tar.gz` file) and finally
+try to upload that distribution to CPAN.
+
+    assixt push
+
+If you don't want the version to be altered, you can use the `--no-bump`
+argument.
+
+    assixt --no-bump push
+
+== Documentation
+
+This project contains documentation in the module itself. You can access this
+most easily using the `p6man` utility. For instance, to get information on the
+`new` command, use the following invocation:
+
+    p6man App::Assixt::Commands::New
+
+For general information of the module, use `p6man App::Assixt`. For general
+information about the `assixt` script itself, use `p6man assixt`. The
+documentation can probably be improved at many points at this point in time. If
+you find any issues, please report them on the repository, or send a merge
+request to fix it immediately as well.
+
+== License
+
+`App::Assixt` is released under the terms of the GNU Affero General Public
+License.
