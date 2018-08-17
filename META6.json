@@ -46,6 +46,7 @@
     "docopt.txt",
     "man/assixt.1.adoc"
   ],
+  "source-url": "https://gitlab.com/tyil/perl6-app-assixt.git",
   "tags": [
     "CLI",
     "devel",
