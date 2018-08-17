@@ -53,6 +53,9 @@ class App::Assixt::Commands::Upload
 		# Check if it all worked out
 		my %http-status;
 
+		# TODO: Multiple tries in case of failure
+		# TODO: Use another module to handle this
+
 		for @curl-out -> $line {
 			if ($line ~~ m:i/HTTP\/\d\.\d\s(\d+)\s(.+)/) {
 				%http-status =

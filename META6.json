@@ -8,7 +8,8 @@
     "Config:api<1>:ver<1.3.5+>",
     "Dist::Helper:ver<0.21.0+>",
     "Hash::Merge",
-    "Terminal::Getpass:ver<0.0.5+>"
+    "Terminal::Getpass:ver<0.0.5+>",
+    "zef"
   ],
   "description": "A CLI frontend to Dist::Helper",
   "license": "GPL-3.0",
@@ -34,6 +35,7 @@
     "App::Assixt::Commands::Touch::Resource": "lib/App/Assixt/Commands/Touch/Resource.pm6",
     "App::Assixt::Commands::Touch::Test": "lib/App/Assixt/Commands/Touch/Test.pm6",
     "App::Assixt::Commands::Touch::Unit": "lib/App/Assixt/Commands/Touch/Unit.pm6",
+    "App::Assixt::Commands::Undepend": "lib/App/Assixt/Commands/Undepend.pm6",
     "App::Assixt::Commands::Upload": "lib/App/Assixt/Commands/Upload.pm6",
     "App::Assixt::Config": "lib/App/Assixt/Config.pm6",
     "App::Assixt::Input": "lib/App/Assixt/Input.pm6",

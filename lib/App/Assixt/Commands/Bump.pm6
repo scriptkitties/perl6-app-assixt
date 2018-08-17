@@ -13,6 +13,8 @@ my Str @bump-types = (
 	"patch",
 );
 
+# TODO: In case of major bump, also bump the api key in META6.json
+
 class App::Assixt::Commands::Bump
 {
 	multi method run(
@@ -27,7 +29,9 @@ class App::Assixt::Commands::Bump
 		my SemVer $version .= new(%meta<version>);
 
 		given $type.lc {
-			when "major" { $version.bump-major }
+			when "major" {
+				$version.bump-major;
+			}
 			when "minor" { $version.bump-minor }
 			when "patch" { $version.bump-patch }
 		}
