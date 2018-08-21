@@ -3,8 +3,8 @@ App::Assixt:
     - master
   image: rakudo-star
   before_script:
-    - apt update -qq && apt install -yqq asciidoc build-essential
-    - zef install . --deps-only
+    - apt update -qq && apt install -yqq build-essential
+    - zef install . --deps-only --/test
   script: AUTHOR_TESTING=1 prove -v -e "perl6 -Ilib" t
   artifacts:
     name: "perl6-App-Assixt"
@@ -20,6 +20,6 @@ test:
     - master
   image: rakudo-star
   before_script:
-    - apt update -qq && apt install -yqq asciidoc build-essential
-    - zef install . --deps-only
+    - apt update -qq && apt install -yqq build-essential
+    - zef install . --deps-only --/test
   script: AUTHOR_TESTING=1 prove -v -e "perl6 -Ilib" t
