@@ -2,10 +2,10 @@
 
 use v6.c;
 
-use Config;
 use App::Assixt::Input;
+use Config;
 use Dist::Helper::Meta;
-use SemVer;
+use Version::Semantic;
 
 my Str @bump-types = (
 	"major",
@@ -26,12 +26,10 @@ class App::Assixt::Commands::Bump
 		my %meta = get-meta;
 
 		# Update the version accordingly
-		my SemVer $version .= new(%meta<version>);
+		my Version::Semantic $version .= new(%meta<version>);
 
 		given $type.lc {
-			when "major" {
-				$version.bump-major;
-			}
+			when "major" { $version.bump-major }
 			when "minor" { $version.bump-minor }
 			when "patch" { $version.bump-patch }
 		}

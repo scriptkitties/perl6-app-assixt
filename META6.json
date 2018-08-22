@@ -9,6 +9,7 @@
     "Dist::Helper:ver<0.21.0+>",
     "Hash::Merge",
     "Terminal::Getpass:ver<0.0.5+>",
+    "Version::Semantic:ver<0.1.0+>",
     "zef"
   ],
   "description": "A CLI frontend to Dist::Helper",

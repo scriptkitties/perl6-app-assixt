@@ -27,6 +27,7 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 - `bootstrap config` should now work as expected again. Some unnecessary keys
   are new being filtered out, and the save mechanism should work properly now.
 - `depend` can now correctly be called with multiple arguments.
+- `bump` now uses `Version::Semantic` to deal with the version bumping.
 
 ## [0.4.0] - 2018-06-24
 ### Added
