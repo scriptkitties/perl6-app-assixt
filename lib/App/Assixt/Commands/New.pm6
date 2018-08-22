@@ -16,22 +16,36 @@ class App::Assixt::Commands::New
 	method run(
 		Config:D :$config,
 	) {
-		# Ask the user about some information on the module
 		$config<runtime><name> //= ask("Module name");
+
+		my IO::Path $dir;
+
+		# Make sure the directory path isn't already in use
+		CHECKPATH: loop {
+            # Get the full path
+			$dir .= new($config.get("new-module.dir-prefix") ~ $config<runtime><name>.subst("::", "-", :g));
+
+			# No need to check anything if --force is supplied
+			last if $config<force>;
+
+            # Make sure it isn't already taken on the local system
+            if ($dir.e) {
+                note "{~$dir} is not empty! Use a different module name or remove the directory first.";
+
+				$config<runtime><name> = ask("Module name", $config<runtime><name>);
+
+                redo CHECKPATH;
+            }
+
+			# If we can reach this, it should be all right
+			last;
+		}
+
 		$config<runtime><author> //= ask("Your name", $config.get("new-module.author"));
 		$config<runtime><email> //= ask("Your email address", $config.get("new-module.email"));
 		$config<runtime><perl> //= ask("Perl 6 version", $config.get("new-module.perl"));
 		$config<runtime><description> //= ask("Module description", "Nondescript");
 		$config<runtime><license> //= ask("License key", $config.get("new-module.license"));
-
-		# Create a directory name for the module
-		my $dir-name = $config.get("new-module.dir-prefix") ~ $config<runtime><name>.subst("::", "-", :g);
-
-		# Make sure it isn't already taken on the local system
-		if (!$config<force> && $dir-name.IO.e && dir($dir-name)) {
-			note "$dir-name is not empty!";
-			return;
-		}
 
 		# Create the initial %meta
 		my %meta = merge-hash(new-meta, %(
@@ -47,8 +61,8 @@ class App::Assixt::Commands::New
 		));
 
 		# Create the module skeleton
-		mkdir $dir-name unless $dir-name.IO.d;
-		chdir $dir-name;
+		mkdir $dir.absolute unless $dir.d;
+		chdir $dir;
 		mkdir "bin" unless $config<force> && "bin".IO.d;
 		mkdir "lib" unless $config<force> && "lib".IO.d;
 		mkdir "resources" unless $config<force> && "resources".IO.d;
@@ -62,7 +76,7 @@ class App::Assixt::Commands::New
 		if ($config<external><gitlab-ci> && !$config<runtime><no-gitlab-ci>) {
 			my %context =
 				moduleName => $config<runtime><name>,
-				dirName => $dir-name,
+				dirName => $dir,
 			;
 
 			template("gitlab-ci.yml", ".gitlab-ci.yml", :%context, clobber => $config<force>);

@@ -28,6 +28,8 @@ Versioning](http://semver.org/spec/v2.0.0.html).
   are new being filtered out, and the save mechanism should work properly now.
 - `depend` can now correctly be called with multiple arguments.
 - `bump` now uses `Version::Semantic` to deal with the version bumping.
+- The directory path check in `new` has been updated to be checked earlier, and
+  to give users the option to change the name if needed.
 
 ## [0.4.0] - 2018-06-24
 ### Added
