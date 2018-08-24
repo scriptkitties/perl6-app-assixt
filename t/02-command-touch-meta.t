@@ -26,6 +26,8 @@ unlink ".gitlab-ci.yml";
 subtest "Create clean README", {
 	plan 2;
 
+	unlink "README.pod6"; # Remove default README.pod6
+
 	ok run-bin($assixt, « touch meta readme »), "assixt touch meta readme";
 	ok "README.pod6".IO.e && "README.pod6".IO.f, "README.pod6 created";
 }

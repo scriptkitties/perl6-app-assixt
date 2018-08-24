@@ -68,6 +68,14 @@ class App::Assixt::Commands::New
 		mkdir "resources" unless $config<force> && "resources".IO.d;
 		mkdir "t" unless $config<force> && "t".IO.d;
 
+		template("readme.pod6", "README.pod6", clobber => $config<force>, context => %(
+			name => %meta<name>,
+				author => %meta<authors>.join(", "),
+				version => ~%meta<version>,
+				description => %meta<description>,
+				license => %meta<license>,
+		));
+
 		template("editorconfig", ".editorconfig", context => $config<style>, clobber => $config<force>);
 		template("gitignore", ".gitignore", clobber => $config<force>) if $config<external><git> && !$config<runtime><no-git>;
 		template("travis.yml", ".travis.yml", clobber => $config<force>) if $config<external><travis> && !$config<runtime><no-travis>;
