@@ -17,6 +17,8 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 - An `undepend` command has been added to remove existing dependencies. Note
   that, like any other module related activity, it is case-sensitive on the
   module names.
+- New projects will now contain a `README.pod6` file. Module authors are
+  encouraged to extend it with some helpful information for end-users.
 
 ### Changed
 - `bump` will update other files to show the new version number as well:
@@ -30,6 +32,10 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 - `bump` now uses `Version::Semantic` to deal with the version bumping.
 - The directory path check in `new` has been updated to be checked earlier, and
   to give users the option to change the name if needed.
+- `dist` will now require a `README` or `README.md` file to exist in the module
+  root. If a `README.pod6` is found, this will be converted to `README.md` to
+  use instead. This is done because Markdown is widely supported on numerous
+  platforms.
 
 ## [0.4.0] - 2018-06-24
 ### Added
