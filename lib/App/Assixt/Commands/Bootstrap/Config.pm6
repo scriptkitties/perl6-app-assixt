@@ -78,4 +78,26 @@ class App::Assixt::Commands::Bootstrap::Config
 	}
 }
 
+=begin pod
+
+=head1 Synopsis
+
+assixt bootstrap config
+
+=head1 Description
+
+Walk through the configuration options for C<assixt>, and save the resulting
+configuration file.
+
+=head1 Examples
+
+    assixt bootstrap config
+
+=head1 See also
+
+=item1 C<App::Assixt>
+=item1 C<App::Assixt::Config>
+
+=end pod
+
 # vim: ft=perl6 noet

@@ -129,3 +129,33 @@ class App::Assixt::Commands::Bump
 		}
 	}
 }
+
+=begin pod
+
+=head1 Synopsis
+
+assixt bump <major|minor|patch>
+
+=head1 Description
+
+Bump the version number of the module. This will update the C<version> key in
+the C<META6.json>, as well as the C<=VERSION> meta blocks in the Perl 6 Pod
+sections of the module files.
+
+C<App::Assixt> uses the L<Semantic Versioning|https://semver.org> specification
+to handle version numbers in B<all> circumstances.
+
+=head1 Examples
+
+    assixt bump major
+    assixt bump minor
+    assixt bump patch
+
+=head1 See also
+
+=item1 C<App::Assixt>
+=item1 L<Semantic Versioning|https://semver.org>
+
+=end pod
+
+# vim: ft=perl6 noet
