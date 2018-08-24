@@ -37,6 +37,8 @@ class App::Assixt::Commands::Dist
 			return;
 		}
 
+		my Str $readme = self.make-readme($path, :$config);
+
 		# Ensure there's a viable README file
 		if (!self.ensure-readme($path, :$config) && !$config<force>) {
 			note "No usable README file found! Add a README.pod6 using `assixt touch meta readme.pod6`, or use --force to skip this check.";
@@ -60,6 +62,9 @@ class App::Assixt::Commands::Dist
 		pushd($path);
 		run « tar czf "$output" {@tar-flags} .», :err;
 		popd;
+
+		# Remove the generated README, if any.
+		unlink $readme if $readme;
 
 		say "Created {$output}";
 
@@ -103,29 +108,25 @@ class App::Assixt::Commands::Dist
 		}
 	}
 
-	#| This method will ensure there's a viable README bundled with the
-	#| module's distribution. The reason is that there should be a usable
-	#| format in all circumstances, to make use of the module as easy as
-	#| possible for all possible users. Currently, L<modules.perl6.org>
-	#| supports only Markdown, so that's what I want here. If there's a README
-	#| available in a different format, that's fine too, so long as we can
-	#| convert it to Markdown here.
-	method ensure-readme (
+	#| Make a README file, if no acceptable format exists yet. If a README has
+	#| been made, the absolute path to the README will be returned. An empty
+	#| Str will be returned if nothing was done.
+	method make-readme (
 		IO::Path:D $path,
 		Config:D :$config,
-		--> Bool
-    ) {
-		return True if "$path/README.md".IO.e;
-		return True if "$path/README".IO.e;
+		--> Str
+	) {
+		return "" if "$path/README.md".IO.e;
+		return "" if "$path/README".IO.e;
 
 		my %meta = get-meta($path.absolute);
 
-		my @pods = <<
+		my @pods = «
 			"$path/README.pod6"
 			"$path/README.pod"
-        >>;
+		»;
 
-        @pods.push: %meta<provides>{%meta<name>} if %meta<provides>{%meta<name>}:exists;
+		@pods.push: %meta<provides>{%meta<name>} if %meta<provides>{%meta<name>}:exists;
 
 		my Str $main-module = "$path/lib/" ~ %meta<name>.split("::").join("/");
 
@@ -134,13 +135,13 @@ class App::Assixt::Commands::Dist
 		@pods.push: "$main-module.pod6";
 		@pods.push: "$main-module.pod";
 
-        for @pods -> $pod {
+		for @pods -> $pod {
 			next unless $pod.IO.e;
 
-            my Proc $converter = run << "$*EXECUTABLE" --doc=Markdown "$pod" >>, :out, :err;
-            my Int $exit-code = $converter.exitcode;
+			my Proc $converter = run << "$*EXECUTABLE" --doc=Markdown "$pod" >>, :out, :err;
+			my Int $exit-code = $converter.exitcode;
 
-            $exit-code = $converter.exitcode while $exit-code < 0;
+			$exit-code = $converter.exitcode while $exit-code < 0;
 
 			if ($exit-code) {
 				note "You need Pod::To::Markdown to use Pod 6 documents as README. You can install this with zef: `zef install Pod::To::Markdown`.";
@@ -154,8 +155,20 @@ class App::Assixt::Commands::Dist
 
 			spurt($path.add("README.md"), $converter.out.slurp(:close));
 
-			return True;
+			return $path.add("README.md").absolute;
 		}
+
+		"";
+	}
+
+	#| Ensure a README in an acceptable format is available.
+	method ensure-readme (
+		IO::Path:D $path,
+		Config:D :$config,
+		--> Bool
+	) {
+		return True if "$path/README.md".IO.e;
+		return True if "$path/README".IO.e;
 
 		False;
 	}

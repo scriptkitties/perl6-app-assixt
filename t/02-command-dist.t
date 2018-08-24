@@ -90,11 +90,11 @@ subtest "Dist without a README", {
 	create-test-module($assixt, "Local::Test::Dist::Readme");
 	unlink "$root/perl6-Local-Test-Dist-Readme/README.pod6";
 
-    my Config $config = get-config(:no-user-config);
+	my Config $config = get-config(:no-user-config);
 
-    $config<runtime> = %(
-        output-dir => "/dev/null"
-    );
+	$config<runtime> = %(
+		output-dir => "/dev/null"
+	);
 
 	stderr-like {
 		App::Assixt::Commands::Dist.run($root.IO.add("perl6-Local-Test-Dist-Readme"), :$config);
@@ -102,21 +102,29 @@ subtest "Dist without a README", {
 }
 
 subtest "Dist with a README.pod6", {
-	plan 3;
+	plan 5;
 
-	create-test-module($assixt, "Local::Test::Dist::Readme::Pod6");
-
+	my IO::Path $module = $root.IO.add("perl6-Local-Test-Dist-Readme-Pod6");
+	my IO::Path $output = $root.IO.add("output");
 	my Config $config = get-config(:no-user-config);
 
 	$config.read: %(
 		runtime => %(
-            output-dir => $root.IO.add("output").absolute,
-        ),
-    );
+			output-dir => $output.absolute,
+		),
+	);
 
-    ok App::Assixt::Commands::Dist.run($root.IO.add("perl6-Local-Test-Dist-Readme-Pod6"), :$config), "Dist gets created";
-	ok False, "Dist contains the README.md";
-	ok False, "README.md is removed from main repo again";
+	create-test-module($assixt, "Local::Test::Dist::Readme::Pod6");
+
+	nok $module.add("README.md").e, "README.md does not exist";
+	ok $module.add("README.pod6").e, "README.pod6 exists";
+	ok App::Assixt::Commands::Dist.run($module, :$config), "Dist gets created";
+	output-like {
+		my Proc $tar = run « tar tf "{$output.add("Local-Test-Dist-Readme-Pod6-0.0.0.tar.gz").absolute}" », :out;
+
+		$tar.out(:close).slurp.say;
+	}, / ^^ "Local-Test-Dist-Readme-Pod6-0.0.0/README.md" $$ /, "Dist contains the README.md";
+	nok $module.add("README.md").e, "README.md is removed from main repo again";
 }
 
 # vim: ft=perl6 noet

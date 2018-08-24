@@ -4,7 +4,7 @@ App::Assixt:
   image: rakudo-star
   before_script:
     - apt update -qq && apt install -yqq build-essential
-    - zef install . --deps-only --/test
+    - zef install . --deps-only --test-depends --/test
   script: AUTHOR_TESTING=1 prove -v -e "perl6 -Ilib" t
   artifacts:
     name: "perl6-App-Assixt"
@@ -21,5 +21,5 @@ test:
   image: rakudo-star
   before_script:
     - apt update -qq && apt install -yqq build-essential
-    - zef install . --deps-only --/test
+    - zef install . --deps-only --test-depends --/test
   script: AUTHOR_TESTING=1 prove -v -e "perl6 -Ilib" t
