@@ -47,13 +47,20 @@ class App::Assixt::Commands::Dist
 
 		# Set tar flags based on version
 		my $tar-version-cmd = run « tar --version », :out;
-		my $tar-version = $tar-version-cmd.out.lines[0].split(" ")[*-1];
-		my @tar-flags;
+		my Version $tar-version .= new: $tar-version-cmd.out.lines[0].split(" ")[*-1];
 
-		given $tar-version {
-			when "1.27.1" { @tar-flags = « --transform $transform --exclude-vcs --exclude=.[^/]* » }
-			default { @tar-flags = « --transform $transform --exclude-vcs --exclude-vcs-ignores --exclude=.[^/]* » }
-		}
+		my Str @tar-flags = «
+			--transform "$transform"
+			--exclude-vcs
+			--exclude=.[^/]*
+			--owner=0
+			--group=0
+			--numeric-owner
+		»;
+
+		my Version $version-exclude-vcs-ignores = v1.27.1+;
+
+		@tar-flags.push: "--exclude-vcs-ignores" if $tar-version ~~ $version-exclude-vcs-ignores;
 
 		if ($config<verbose>) {
 			say "tar czf {$output.perl} {@tar-flags} .";

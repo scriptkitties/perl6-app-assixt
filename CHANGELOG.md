@@ -36,6 +36,7 @@ Versioning](http://semver.org/spec/v2.0.0.html).
   root. If a `README.pod6` is found, this will be converted to `README.md` to
   use instead. This is done because Markdown is widely supported on numerous
   platforms.
+- `dist` will now strip local user data from the distribution tarball.
 
 ## [0.4.0] - 2018-06-24
 ### Added
