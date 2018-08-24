@@ -8,6 +8,7 @@
     "Config:api<1>:ver<1.3.5+>",
     "Dist::Helper:ver<0.21.0+>",
     "Hash::Merge",
+    "IO::Path::Dirstack:ver<0.1.1+>",
     "Terminal::Getpass:ver<0.0.5+>",
     "Version::Semantic:ver<0.1.0+>",
     "zef"
@@ -56,7 +57,9 @@
     "ecosystems"
   ],
   "test-depends": [
-    "JSON::Fast"
+    "JSON::Fast",
+    "Test",
+    "Test::Output:ver<1.001001+>"
   ],
   "version": "0.4.0"
 }

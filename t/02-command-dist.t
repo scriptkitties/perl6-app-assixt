@@ -3,15 +3,18 @@
 use v6.c;
 
 use Test;
+use Test::Output;
 
 BEGIN plan :skip-all<set AUTHOR_TESTING=1 to run bin tests> unless %*ENV<AUTHOR_TESTING>;
 
+use App::Assixt::Commands::Dist;
 use App::Assixt::Config;
 use App::Assixt::Test;
+use Config;
 use File::Temp;
 use File::Which;
 
-plan 5;
+plan 6;
 
 skip-rest "'tar' is not available" and exit unless which("tar");
 
@@ -80,5 +83,22 @@ subtest "Dist in other path can be created", {
 
 	ok "$output-dir/Local-Test-Dist-0.0.0.tar.gz".IO.e, "Tarball exists";
 };
+
+subtest "Dist without a README", {
+	plan 1;
+
+	create-test-module($assixt, "Local::Test::Dist::Readme");
+	unlink "$root/perl6-Local-Test-Dist-Readme/README.pod6";
+
+    my Config $config = get-config(:no-user-config);
+
+    $config<runtime> = %(
+        output-dir => "/dev/null"
+    );
+
+	stderr-like {
+		App::Assixt::Commands::Dist.run($root.IO.add("perl6-Local-Test-Dist-Readme"), :$config);
+	}, /"No usable README file found"/, "Missing README error is shown";
+}
 
 # vim: ft=perl6 noet

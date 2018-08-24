@@ -7,23 +7,22 @@ use Config;
 use Dist::Helper::Meta;
 use Dist::Helper;
 use File::Which;
+use IO::Path::Dirstack;
 
 class App::Assixt::Commands::Dist
 {
 	multi method run(
-		Str:D $path,
+		IO::Path:D $path,
 		Config:D :$config,
 	) {
-		chdir $path;
-
-		if (!"./META6.json".IO.e) {
-			note "No META6.json in {$path}";
+		if (!$path.add("./META6.json").IO.e) {
+			note "No META6.json in {$path.absolute}";
 			return;
 		}
 
 		die "'tar' is not available on this system" unless which("tar");
 
-		my %meta = get-meta;
+		my %meta = get-meta($path.absolute);
 
 		my Str $fqdn = get-dist-fqdn(%meta);
 		my Str $basename = $*CWD.IO.basename;
@@ -35,6 +34,12 @@ class App::Assixt::Commands::Dist
 
 		if ($output.IO.e && !$config<force>) {
 			note "Archive already exists: {$output}";
+			return;
+		}
+
+		# Ensure there's a viable README file
+		if (!self.ensure-readme($path) && !$config<force>) {
+			note "No usable README file found! Add a README.pod6 using `assixt touch meta readme.pod6`, or use --force to skip this check.";
 			return;
 		}
 
@@ -52,7 +57,9 @@ class App::Assixt::Commands::Dist
 			say "tar czf {$output.perl} {@tar-flags} .";
 		}
 
+		pushd($path);
 		run « tar czf "$output" {@tar-flags} .», :err;
+		popd;
 
 		say "Created {$output}";
 
@@ -67,7 +74,14 @@ class App::Assixt::Commands::Dist
 		$output;
 	}
 
-	multi method run(
+	multi method run (
+		Str:D $path,
+		Config:D :$config,
+    ) {
+		self.run($path.IO, :$config);
+	}
+
+	multi method run (
 		Config:D :$config,
 	) {
 		self.run(
@@ -76,7 +90,7 @@ class App::Assixt::Commands::Dist
 		)
 	}
 
-	multi method run(
+	multi method run (
 		@paths,
 		Config:D :$config,
 	) {
@@ -87,5 +101,22 @@ class App::Assixt::Commands::Dist
 				:$config,
 			);
 		}
+	}
+
+	#| This method will ensure there's a viable README bundled with the
+	#| module's distribution. The reason is that there should be a usable
+	#| format in all circumstances, to make use of the module as easy as
+	#| possible for all possible users. Currently, L<modules.perl6.org>
+	#| supports only Markdown, so that's what I want here. If there's a README
+	#| available in a different format, that's fine too, so long as we can
+	#| convert it to Markdown here.
+	method ensure-readme (
+		IO::Path:D $path,
+		--> Bool
+    ) {
+		return True if "$path/README.md".IO.e;
+		return True if "$path/README".IO.e;
+
+		False;
 	}
 }
