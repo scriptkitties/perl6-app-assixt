@@ -14,7 +14,7 @@ use Config;
 use File::Temp;
 use File::Which;
 
-plan 6;
+plan 7;
 
 skip-rest "'tar' is not available" and exit unless which("tar");
 
@@ -99,6 +99,24 @@ subtest "Dist without a README", {
 	stderr-like {
 		App::Assixt::Commands::Dist.run($root.IO.add("perl6-Local-Test-Dist-Readme"), :$config);
 	}, /"No usable README file found"/, "Missing README error is shown";
+}
+
+subtest "Dist with a README.pod6", {
+	plan 3;
+
+	create-test-module($assixt, "Local::Test::Dist::Readme::Pod6");
+
+	my Config $config = get-config(:no-user-config);
+
+	$config.read: %(
+		runtime => %(
+            output-dir => $root.IO.add("output").absolute,
+        ),
+    );
+
+    ok App::Assixt::Commands::Dist.run($root.IO.add("perl6-Local-Test-Dist-Readme-Pod6"), :$config), "Dist gets created";
+	ok False, "Dist contains the README.md";
+	ok False, "README.md is removed from main repo again";
 }
 
 # vim: ft=perl6 noet

@@ -38,7 +38,7 @@ class App::Assixt::Commands::Dist
 		}
 
 		# Ensure there's a viable README file
-		if (!self.ensure-readme($path) && !$config<force>) {
+		if (!self.ensure-readme($path, :$config) && !$config<force>) {
 			note "No usable README file found! Add a README.pod6 using `assixt touch meta readme.pod6`, or use --force to skip this check.";
 			return;
 		}
@@ -112,10 +112,50 @@ class App::Assixt::Commands::Dist
 	#| convert it to Markdown here.
 	method ensure-readme (
 		IO::Path:D $path,
+		Config:D :$config,
 		--> Bool
     ) {
 		return True if "$path/README.md".IO.e;
 		return True if "$path/README".IO.e;
+
+		my %meta = get-meta($path.absolute);
+
+		my @pods = <<
+			"$path/README.pod6"
+			"$path/README.pod"
+        >>;
+
+        @pods.push: %meta<provides>{%meta<name>} if %meta<provides>{%meta<name>}:exists;
+
+		my Str $main-module = "$path/lib/" ~ %meta<name>.split("::").join("/");
+
+		@pods.push: "$main-module.pm6";
+		@pods.push: "$main-module.pm";
+		@pods.push: "$main-module.pod6";
+		@pods.push: "$main-module.pod";
+
+        for @pods -> $pod {
+			next unless $pod.IO.e;
+
+            my Proc $converter = run << "$*EXECUTABLE" --doc=Markdown "$pod" >>, :out, :err;
+            my Int $exit-code = $converter.exitcode;
+
+            $exit-code = $converter.exitcode while $exit-code < 0;
+
+			if ($exit-code) {
+				note "You need Pod::To::Markdown to use Pod 6 documents as README. You can install this with zef: `zef install Pod::To::Markdown`.";
+
+				if ($config<verbose>) {
+					$converter.err.slurp.note;
+				}
+
+				next;
+			}
+
+			spurt($path.add("README.md"), $converter.out.slurp(:close));
+
+			return True;
+		}
 
 		False;
 	}
