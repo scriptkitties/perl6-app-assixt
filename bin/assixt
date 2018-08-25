@@ -11,28 +11,26 @@ use App::Assixt::Main;
 =VERSION 0.4.0
 =LICENSE GNU General Public License, version 3
 
-=head1 SYNOPSIS
+=head1 Synopsis
 
 =item1 assixt [options] <command> [arguments]
 
-=item2 assixt bootstrap config <option> [value]
-=item2 assixt [--dir=/usr/share/man] bootstrap man
+=item2 assixt bootstrap config [<option> [value]]
 =item2 assixt bump [ patch | minor | major ]
-=item2 assixt [--no-files] [--no-meta] clean [path]
-=item2 assixt [--no-install] depend <module>...
+=item2 assixt clean [path] [--no-files] [--no-meta]
+=item2 assixt depend <module>... [--no-install]
 =item2 assixt dist [path]...
-=item2 assixt help
-=item2 assixt [--no-git] [--no-travis] new [name]
-=item2 assixt [--no-bump] push [path]...
+=item2 assixt new [name] [--no-git] [--no-travis]
+=item2 assixt push [path]... [--no-bump]
 =item2 assixt test
 =item2 assixt touch bin <name>
 =item2 assixt touch class <name>
 =item2 assixt touch resource <name>
 =item2 assixt touch test <name>
 =item2 assixt touch unit <name>
-=item2 assixt [--pause-id=<id>] [--pause-password=<pass>] upload <dist>...
+=item2 assixt upload <dist>... [--pause-id=<id>] [--pause-password=<pass>]
 
-=head1 OPTIONS
+=head2 Options
 
 =defn --help
 Show help output.
@@ -51,22 +49,22 @@ purposes.
 =defn --verbose
 Add additional output. Useful for testing or debugging.
 
-=head1 DESCRIPTION
+=head1 Description
 
-Assixt is a Perl 6 program to assist Perl 6 module developers. It will take care
-of keeping your C<META6.json> in check as you extend your module, so you don't
-have to.
+Assixt is a Perl 6 program to assist Perl 6 module developers. It will take
+care of keeping your C<META6.json> in check as you extend your module, so you
+don't have to.
 
-=head1 EXAMPLES
+=head1 Examples
 
-=head2 Extended usage information
+=head2 Create a new module
 
 =begin input
-assixt help
+assixt new
 =end input
 
-This will show a quick overview of what the possible ways of running C<assixt>
-are.
+This will prompt for some information about the module, and then generate the
+basic structure for it.
 
 =head2 Bump the version
 
@@ -74,10 +72,14 @@ are.
 assixt bump minor
 =end input
 
-C<assixt> assumes L<semantic versioning|https://semver.org/>, so you can either
+C<assixt> assumes L<Semantic Versioning|https://semver.org/>, so you can either
 bump the I<major>, I<minor> or I<patch> level of the version. Bumping the
 version number will update the C<META6.json> file. Unless C<--no-bump-provides>
 is given, the C<=VERSION> pod blocks found in the files referenced in the
 C<provides> key of your C<META6.json> will also be updated.
+
+=head1 See also
+
+=item1 C<App::Assixt>
 
 =end pod
