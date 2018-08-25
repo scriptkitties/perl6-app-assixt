@@ -10,6 +10,8 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 - The `upload` command now tries multiple attempts to upload a distribution.
   The default number of tries is 3, but can be altered using the `pause.tries`
   configuration key.
+- The `api` key in the `META6.json` now gets updated to reflect the major
+  version number.
 
 ### Changed
 - The `.gitlab-ci.yml` generated during `new` should now have the correct names

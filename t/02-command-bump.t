@@ -29,11 +29,13 @@ App::Assixt::Commands::Touch::Bin.run("bin", "test-bin", config => get-config())
 App::Assixt::Commands::Touch::Class.run("class", "Local::Test::Bump::Test::Class", config => get-config());
 
 subtest "Bump patch version", {
-	plan 5;
+	plan 7;
 
 	is get-meta()<version>, "0.0.0", "Version is now at 0.0.0";
+	is get-meta()<api>, "0", "API is now at 0";
 	ok run-bin($assixt, « bump patch --force »), "Bump patch level";
 	is get-meta()<version>, "0.0.1", "Version is now at 0.0.1";
+	is get-meta()<api>, "0", "API is still at 0";
 
 	# This entails 2 additional tests
 	for get-meta()<provides>.values -> $file {
@@ -46,11 +48,13 @@ subtest "Bump patch version", {
 };
 
 subtest "Bump minor version", {
-	plan 5;
+	plan 7;
 
 	is get-meta()<version>, "0.0.1", "Version is now at 0.0.1";
+	is get-meta()<api>, "0", "API is now at 0";
 	ok run-bin($assixt, « bump minor --force »), "Bump minor level";
 	is get-meta()<version>, "0.1.0", "Version is now at 0.1.0";
+	is get-meta()<api>, "0", "API is still at 0";
 
 	# This entails 2 additional tests
 	for get-meta()<provides>.values -> $file {
@@ -63,11 +67,13 @@ subtest "Bump minor version", {
 };
 
 subtest "Bump major version", {
-	plan 5;
+	plan 7;
 
 	is get-meta()<version>, "0.1.0", "Version is now at 0.1.0";
+	is get-meta()<api>, "0", "API is now at 0";
 	ok run-bin($assixt, « bump major --force »), "Bump major level";
 	is get-meta()<version>, "1.0.0", "Version is now at 1.0.0";
+	is get-meta()<api>, "1", "API is now at 1";
 
 	# This entails 2 additional tests
 	for get-meta()<provides>.values -> $file {

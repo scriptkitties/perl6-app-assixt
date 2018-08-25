@@ -24,8 +24,11 @@ class App::Assixt::Commands::Bump
 		die "Illegal bump type supplied: $type" unless @bump-types ∋ $type.lc;
 
 		my %meta = get-meta;
+		my Str $version-string = %meta<version>;
 
-		# Update the version accordingly
+		# Set a starting semantic version number to work with
+		$version-string = "0.0.0" if $version-string eq "*";
+
 		my Version::Semantic $version .= new(%meta<version>);
 
 		given $type.lc {
@@ -35,6 +38,7 @@ class App::Assixt::Commands::Bump
 		}
 
 		%meta<version> = ~$version;
+		%meta<api> = ~$version.parts[0];
 
 		put-meta(:%meta);
 
