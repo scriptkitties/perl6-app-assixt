@@ -185,7 +185,7 @@ class App::Assixt::Commands::Dist
 
 =NAME    App::Assixt::Commands::Dist
 =AUTHOR  Patrick Spek <p.spek@tyil.work>
-=VERSION 0.4.0
+=VERSION 0.5.0
 
 =head1 Synopsis
 

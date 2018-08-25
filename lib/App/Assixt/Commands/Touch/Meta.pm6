@@ -56,7 +56,7 @@ class App::Assixt::Commands::Touch::Meta
 
 =NAME    App::Assixt::Commands::Touch::Meta
 =AUTHOR  Patrick Spek <p.spek@tyil.work>
-=VERSION 0.4.0
+=VERSION 0.5.0
 
 =head1 SEE ALSO
 

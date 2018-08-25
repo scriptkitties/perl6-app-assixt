@@ -8,7 +8,7 @@ unit module App::Assixt;
 
 =NAME    App::Assixt
 =AUTHOR  Patrick Spek <p.spek@tyil.work>
-=VERSION 0.4.0
+=VERSION 0.5.0
 
 =head1 Description
 

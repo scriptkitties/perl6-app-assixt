@@ -43,7 +43,7 @@ class App::Assixt::Commands::Clean
 
 =NAME    App::Assixt::Commands::Clean
 =AUTHOR  Patrick Spek <p.spek@tyil.work>
-=VERSION 0.4.0
+=VERSION 0.5.0
 
 =head1 Synopsis
 

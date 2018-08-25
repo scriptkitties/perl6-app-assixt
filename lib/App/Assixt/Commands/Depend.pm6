@@ -45,7 +45,7 @@ class App::Assixt::Commands::Depend
 
 =NAME    App::Assixt::Commands::Depend
 =AUTHOR  Patrick Spek <p.spek@tyil.work>
-=VERSION 0.4.0
+=VERSION 0.5.0
 
 =head1 Synopsis
 
