@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic
 Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [UNRELEASED]
+### Changed
+- The `.gitlab-ci.yml` generated during `new` should now have the correct names
+  for the placeholder, fixing [GitLab#4](https://gitlab.com/tyil/perl6-app-assixt/issues/4).
+
 ## [0.5.0] - 2018-08-25
 ### Added
 - `touch` will now add a pod structure at the bottom of `bin`, `lib`, `class`
