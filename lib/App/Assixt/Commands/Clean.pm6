@@ -39,4 +39,29 @@ class App::Assixt::Commands::Clean
 	}
 }
 
+=begin pod
+
+=NAME    App::Assixt::Commands::Clean
+=AUTHOR  Patrick Spek <p.spek@tyil.work>
+=VERSION 0.4.0
+
+=head1 Synopsis
+
+assixt clean
+
+=head1 Description
+
+Clean up a module, removing all files not referenced from C<META6.json>, and
+removing all references in C<META6.json> mapping to non-existing files.
+
+=head1 Examples
+
+    assixt clean
+
+=head1 See also
+
+=item1 C<App::Assixt>
+
+=end pod
+
 # vim: ft=perl6 noet

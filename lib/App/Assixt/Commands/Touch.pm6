@@ -27,4 +27,32 @@ class App::Assixt::Commands::Touch
 	}
 }
 
-# vim: noet ts=4 sw=4
+=begin pod
+
+=NAME    App::Assixt::Commands::Touch
+=AUTHOR  Patrick Spek <p.spek@tyil.work>
+=VERSION 0.4.0
+
+=head1 Synopsis
+
+assixt touch <type>
+
+=head1 Description
+
+Add a new file to the module. This will generate a skeleton file, and add it to
+the module's C<META6.json>.
+
+=head1 Examples
+
+    assixt touch class Local::Test
+    assixt touch unit Local::Test::Unit
+    assixt touch resource local/resource.txt
+    assixt touch test 01-use-ok
+
+=head1 See also
+
+=item1 C<App::Assixt>
+
+=end pod
+
+# vim: ft=perl6 noet

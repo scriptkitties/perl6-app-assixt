@@ -40,3 +40,35 @@ class App::Assixt::Commands::Depend
 		samewith($_, :$config) for @modules;
 	}
 }
+
+=begin pod
+
+=NAME    App::Assixt::Commands::Depend
+=AUTHOR  Patrick Spek <p.spek@tyil.work>
+=VERSION 0.4.0
+
+=head1 Synopsis
+
+assixt depend <module>
+
+=head1 Description
+
+Add a dependency to a given module. This will add it to the C<dependencies> key
+in C<META6.json>. Unless the C<--no-zef> option has been passed, it will also
+install the module using C<zef> on the local machine.
+
+=head1 Examples
+
+    assixt depend Config
+    assixt depend Pod::To::Pager --no-zef
+
+=head1 See also
+
+=item1 C<App::Assixt>
+=item1 C<App::Assixt::Commands::Undepend>
+=item1 C<zef>
+=item1 L<Perl 6 module directory|https://modules.perl6.org>
+
+=end pod
+
+# vim: ft=perl6 noet

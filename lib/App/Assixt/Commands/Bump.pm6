@@ -132,6 +132,10 @@ class App::Assixt::Commands::Bump
 
 =begin pod
 
+=NAME    App::Assixt::Commands::Bump
+=AUTHOR  Patrick Spek <p.spek@tyil.work>
+=VERSION 0.4.0
+
 =head1 Synopsis
 
 assixt bump <major|minor|patch>

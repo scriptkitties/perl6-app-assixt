@@ -45,3 +45,34 @@ class App::Assixt::Commands::Push
 		}
 	}
 }
+
+=begin pod
+
+=NAME    App::Assixt::Commands::Push
+=AUTHOR  Patrick Spek <p.spek@tyil.work>
+=VERSION 0.4.0
+
+=head1 Synopsis
+
+assixt push [--no-bump]
+
+=head1 Description
+
+Push a new module release. This will C<bump>, C<dist> and C<upload> the module.
+Optionally, C<--no-bump> can be given to skip the version bump.
+
+=head1 Examples
+
+    assixt push
+    assixt push --no-bump
+
+=head1 See also
+
+=item1 C<App::Assixt>
+=item1 C<App::Assixt::Commands::Bump>
+=item1 C<App::Assixt::Commands::Dist>
+=item1 C<App::Assixt::Commands::Upload>
+
+=end pod
+
+# vim: ft=perl6 noet

@@ -180,3 +180,34 @@ class App::Assixt::Commands::Dist
 		False;
 	}
 }
+
+=begin pod
+
+=NAME    App::Assixt::Commands::Dist
+=AUTHOR  Patrick Spek <p.spek@tyil.work>
+=VERSION 0.4.0
+
+=head1 Synopsis
+
+assixt dist [--output-dir=Str]
+
+=head1 Description
+
+Create a distribution tarball of a module. The resulting tarball will be saved
+in the location specified by the C<assixt.distdir> configuration key.
+Optionally, C<--output-dir> can be given a path to store the distribution in,
+which will take precedence over the C<assixt.distdir> value.
+
+=head1 Examples
+
+    assixt dist
+    assixt dist --output-dir=/tmp
+
+=head1 See also
+
+=item1 C<App::Assixt>
+=item1 C<App::Assixt::Config>
+
+=end pod
+
+# vim: ft=perl6 noet

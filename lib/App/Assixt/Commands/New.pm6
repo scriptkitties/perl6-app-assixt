@@ -28,14 +28,14 @@ class App::Assixt::Commands::New
 			# No need to check anything if --force is supplied
 			last if $config<force>;
 
-            # Make sure it isn't already taken on the local system
-            if ($dir.e) {
-                note "{~$dir} is not empty! Use a different module name or remove the directory first.";
+			# Make sure it isn't already taken on the local system
+			if ($dir.e) {
+				note "{~$dir} is not empty! Use a different module name or remove the directory first.";
 
 				$config<runtime><name> = ask("Module name", $config<runtime><name>);
 
-                redo CHECKPATH;
-            }
+				redo CHECKPATH;
+			}
 
 			# If we can reach this, it should be all right
 			last;
@@ -96,3 +96,63 @@ class App::Assixt::Commands::New
 		say "Created new project folder at {".".IO.absolute}";
 	}
 }
+
+=begin pod
+
+=NAME    App::Assixt::Commands::New
+=AUTHOR  Patrick Spek <p.spek@tyil.work>
+=VERSION 0.4.0
+
+=head1 Synopsis
+
+assixt new [defaults]
+
+=head2 Defaults
+
+=defn [--name=Str]
+
+The name of the module. If not specified, it will be prompted.
+
+=defn [--author=Str]
+
+The author's name. If not specified, it will be prompted. The default value can
+be set using the C<new-module.author> configuration key.
+
+=defn [--email=Str]
+
+The author's email address. If not specified, it will be prompted. The default
+value can be set using the C<new-module.email> configuration key.
+
+=defn [--perl=Str]
+
+The Perl 6 version to use throughout the module. If not specified, it will be
+prompted. The default value is C<"c">, but can be canfigured using the
+C<new-module.perl> configuration key.
+
+=defn [--license=Str]
+
+The software license to use for the module. If not specified, it will be
+prompted. The default license is
+L<C<"AGPL-3.0>|https://www.gnu.org/licenses/agpl-3.0.nl.html>, but can be
+configured using the C<new-module.license> configuration key.
+
+=head1 Description
+
+Create a distribution tarball of a module. The resulting tarball will be saved
+in the location specified by the C<assixt.distdir> configuration key.
+Optionally, C<--output-dir> can be given a path to store the distribution in,
+which will take precedence over the C<assixt.distdir> value.
+
+=head1 Examples
+
+    assixt new
+    assixt new --name=Local::Test
+
+=head1 See also
+
+=item1 C<App::Assixt>
+=item1 C<App::Assixt::Config>
+
+=end pod
+
+# vim: ft=perl6 noet

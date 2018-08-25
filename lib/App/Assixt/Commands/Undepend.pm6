@@ -50,13 +50,22 @@ class App::Assixt::Commands::Undepend
 =AUTHOR  Patrick Spek <p.spek@tyil.work>
 =VERSION 0.4.0
 
-=head1 SYNOPSIS
+=head1 Synopsis
 
-=head1 DESCRIPTION
+assixt undepend <module>
 
-=head1 EXAMPLES
+=head1 Description
+
+Remove a dependency from a module.
+
+=head1 Examples
+
+    assixt undepend Hash::Merge
 
 =head1 SEE ALSO
+
+=item1 C<App::Assixt>
+=item1 C<App::Assixt::Commands::Depend>
 
 =end pod
 
