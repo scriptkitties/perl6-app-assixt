@@ -4,89 +4,71 @@ use v6.c;
 
 use App::Assixt::Config;
 use App::Assixt::Input;
+use CPAN::Uploader::Tiny;
 use Config;
-use Dist::Helper::Meta;
-use Config;
-use File::Temp;
-use File::Which;
-use MIME::Base64;
 
 class App::Assixt::Commands::Upload
 {
 	multi method run(
-		Str $dist,
+		IO::Path:D $dist,
 		Config:D :$config,
 	) {
-		# Get the meta info
-		my $tempdir = tempdir;
-
-		die "'tar' is not available on this system" unless which("tar");
-
-		run « tar xzf "$dist" -C "$tempdir" »;
-
 		$config<runtime><pause-id> //= $config<pause><id> // ask("PAUSE ID", default => $*USER.Str);
 		$config<runtime><pause-password> //= $config<pause><password> // password("PAUSE password");
 
-		my %meta = get-meta($tempdir.IO.add($dist.IO.extension("", :parts(2)).basename).absolute);
-		my $distname = "{%meta<name>.subst("::", "-", :g)}-{%meta<version>}";
+		my Int $tries = 1;
 
-		# Set authentication
-		my $hash = MIME::Base64.encode-str("{$config<runtime><pause-id>}:{$config<runtime><pause-password>}");
-		my $submitvalue = " Upload this file from my disk ";
+		while ($tries ≤ $config<pause><tries>) {
+			CATCH {
+				when $_.payload ~~ / ^ "401 Unauthorized" / {
+					note q:to/EOF/;
+						Your user credentials were incorrect, please re-try entering your credentials. If you
+						are sure your credentials are correct, hit the enter key to retry those credentials.
+						EOF
 
-		my $curl = run «
-			curl
-			-i -s
-			-H "Authorization: Basic $hash"
-			-F "HIDDENNAME={$config<runtime><pause-id>.uc}"
-			-F "CAN_MULTIPART=1"
-			-F "pause99_add_uri_uri="
-			-F "pause99_add_uri_subdirtext=Perl6"
-			-F "pause99_add_uri_upload=$dist"
-			-F "pause99_add_uri_httpupload=@$dist"
-			-F "SUBMIT_pause99_add_uri_httpupload=$submitvalue"
-			https://pause.perl.org/pause/authenquery
-		», :out, :err;
+					$config<runtime><pause-id> = ask("PAUSE ID", default => $config<runtime><pause-id>);
+					$config<runtime><pause-password> = password("PAUSE password") || $config<runtime><pause-password>;
+					$tries++;
+				}
 
-		my @curl-out = $curl.out.lines(:close);
+				when $_.payload ~~ / ^ "409 Conflict" / {
+					note q:to/EOF/;
+						The distribution you're trying to upload conflicts with an existing file on CPAN. You
+						should probably update the version of your module. You can do this with `assixt bump`
+						Create a new distribution with `assixt dist` after that, and try to upload the new
+						dist.
+						EOF
 
-		# Check if it all worked out
-		my %http-status;
-
-		# TODO: Multiple tries in case of failure
-		# TODO: Use another module to handle this
-
-		for @curl-out -> $line {
-			if ($line ~~ m:i/HTTP\/\d\.\d\s(\d+)\s(.+)/) {
-				%http-status =
-					code => $0,
-					message => $1
-					;
-
-				last;
-			}
-		}
-
-		if (!%http-status) {
-			note "Could not find HTTP status in curl response";
-
-			my @curl-err = $curl.err.lines(:close);
-
-			for @curl-err -> $line {
-				note $line.indent(2);
+					return;
+				}
 			}
 
-			exit 1;
+			say "Attempt #$tries...";
+
+			my CPAN::Uploader::Tiny $uploader .= new(
+				user => $config<runtime><pause-id>,
+				password => $config<runtime><pause-password>,
+				agent => "Assixt/0.5.0",
+			);
+
+			if ($uploader.upload($dist.absolute)) {
+				# Report success to the user
+				say "Uploaded {$dist.basename} to CPAN";
+
+				return;
+			}
+
+			$tries++;
 		}
 
-		if (%http-status<code> ne "200") {
-			note "Upload for {%meta<name>} failed: {%http-status<message>}";
+		say "Uploading to CPAN failed, gave up after $tries unsuccesful tries.";
+	}
 
-			exit 2;
-		}
-
-		# Report success to the user
-		say "Uploaded {%meta<name>}:ver<{%meta<version>}> to CPAN";
+	multi method run (
+		Str:D $dist,
+		Config:D :$config,
+	) {
+		self.run($dist.IO, :$config);
 	}
 
 	multi method run(

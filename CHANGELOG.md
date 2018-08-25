@@ -6,9 +6,17 @@ and this project adheres to [Semantic
 Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [UNRELEASED]
+### Added
+- The `upload` command now tries multiple attempts to upload a distribution.
+  The default number of tries is 3, but can be altered using the `pause.tries`
+  configuration key.
+
 ### Changed
 - The `.gitlab-ci.yml` generated during `new` should now have the correct names
   for the placeholder, fixing [GitLab#4](https://gitlab.com/tyil/perl6-app-assixt/issues/4).
+- The `upload` command now makes use of `CPAN::Uploader::Tiny`.
+- The `upload` command will now generate a more specific and friendly error
+  message (if possible) as to why uploading failed.
 
 ## [0.5.0] - 2018-08-25
 ### Added

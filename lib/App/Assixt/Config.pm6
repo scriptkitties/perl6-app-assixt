@@ -35,7 +35,8 @@ sub get-config(
 			spaces => 4,
 		),
 		pause => %(
-			id => ""
+			id => "",
+			tries => 3,
 		),
 	);
 
