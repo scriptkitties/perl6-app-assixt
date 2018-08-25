@@ -83,8 +83,8 @@ class App::Assixt::Commands::New
 
 		if ($config<external><gitlab-ci> && !$config<runtime><no-gitlab-ci>) {
 			my %context =
-				moduleName => $config<runtime><name>,
-				dirName => $dir,
+				name => $config<runtime><name>,
+				directory => $dir,
 			;
 
 			template("gitlab-ci.yml", ".gitlab-ci.yml", :%context, clobber => $config<force>);
