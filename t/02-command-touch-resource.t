@@ -6,19 +6,19 @@ use Test;
 
 BEGIN plan :skip-all<set AUTHOR_TESTING=1 to run bin tests> unless %*ENV<AUTHOR_TESTING>;
 
+use App::Assixt::Commands::Touch::Resource;
+use App::Assixt::Config;
 use App::Assixt::Test;
+use Config;
 use Dist::Helper::Meta;
 use File::Temp;
 
-my $assixt = $*CWD;
-my $root = tempdir;
+plan 1;
 
-chdir $root;
-
-plan 2;
-
-ok create-test-module($assixt, "Local::Test::Touch::Resource"), "assixt new Local::Test::Touch::Resource";
-chdir "$root/perl6-Local-Test-Touch-Resource";
+my IO::Path $module = create-test-module("Local::Test::Touch::Resource", tempdir.IO);
+my Config $config = get-config.read: %(
+	cwd => $module,
+);
 
 subtest "Touch unit files", {
 	my @tests = <
@@ -27,19 +27,14 @@ subtest "Touch unit files", {
 		third/level/test
 	>;
 
-	my $module-dir = "$root/perl6-Local-Test-Touch-Resource";
-
-	plan 4 × @tests.elems;
+	plan 3 × @tests.elems;
 
 	for @tests -> $test {
-		chdir $module-dir;
+		ok get-meta($module)<resources> ∌ $test, "META6.json does not contain $test yet";
 
-		ok get-meta()<resources> ∌ $test, "META6.json does not contain $test yet";
-		ok run-bin($assixt, « touch resource $test »), "assixt touch resource $test";
+		App::Assixt::Commands::Touch::Resource.run($test, :$config);
 
-		chdir $module-dir;
-
-		my %new-meta = get-meta;
+		my %new-meta = get-meta($module);
 
 		ok %new-meta<resources> ∋ $test, "$test exists in META6.json<provides>";
 		ok "resources/$test", "Resource $test exists";

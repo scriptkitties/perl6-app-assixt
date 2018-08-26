@@ -5,37 +5,37 @@ use v6.c;
 use Config;
 use Dist::Helper::Meta;
 
-class App::Assixt::Commands::Touch::Resource
-{
-	method run(
-		"resource",
-		Str:D $resource,
-		Config:D :$config,
-	) {
-		my %meta = get-meta;
+unit class App::Assixt::Commands::Touch::Resource;
 
-		mkdir "resources" unless "resources".IO.d;
-		chdir "resources";
+method run(
+	Str:D $resource,
+	Config:D :$config,
+) {
+	my %meta = get-meta($config<cwd>);
+	my IO::Path $resources = $config<cwd>.add("resources");
 
-		my $path = ".".IO.add($resource);
+	mkdir $resources unless $resources.d;
 
-		# Check for duplicate entry
-		if (%meta<resources> ∋ $path.relative) {
-			note "A $resource already exists in {%meta<name>}";
-			return;
-		}
+	my IO::Path $path = $resources.add($resource);
 
-		# Create the resource
-		my $parent = $path.parent.absolute;
-
-		mkdir $parent unless $parent.IO.d;
-		spurt($path, "") unless $path.IO.e;
-
-		# Add the resource to the META6.json
-		%meta<resources>.push: $path.relative;
-		put-meta(:%meta, path => "..");
-
-		# User-friendly output
-		say "Added resource $resource to {%meta<name>}";
+	# Check for duplicate entry
+	if (%meta<resources> ∋ $path.relative($resources)) {
+		note "A $resource already exists in {%meta<name>}";
+		return;
 	}
+
+	# Create the resource
+	my $parent = $path.parent;
+
+	mkdir $parent unless $parent.d;
+	spurt($path, "");
+
+	# Add the resource to the META6.json
+	%meta<resources>.push: $path.relative($resources);
+	put-meta(%meta, $config<cwd>);
+
+	# User-friendly output
+	say "Added resource $resource to {%meta<name>}";
+
+	$resource;
 }
