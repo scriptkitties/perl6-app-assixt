@@ -42,9 +42,9 @@ Use the configuration specified in C<file>.
 Try to continue, no matter what. This will skip every confirmation dialogue, and
 assume you want to proceed with everything.
 
-=defn --no-user-config
-Do not load user-specific configuration. Useful for testing or debugging
-purposes.
+=defn --[/]user-config
+Set whether to load the user's configuration overrides. Disable during testing
+or debugging.
 
 =defn --verbose
 Add additional output. Useful for testing or debugging.

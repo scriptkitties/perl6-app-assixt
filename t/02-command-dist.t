@@ -106,7 +106,7 @@ subtest "Dist with a README.pod6", {
 
 	my IO::Path $module = $root.IO.add("perl6-Local-Test-Dist-Readme-Pod6");
 	my IO::Path $output = $root.IO.add("output");
-	my Config $config = get-config(:no-user-config);
+	my Config $config = get-config(:!user-config);
 
 	$config.read: %(
 		runtime => %(

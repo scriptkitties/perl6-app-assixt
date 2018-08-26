@@ -13,10 +13,10 @@ sub MAIN(
 	*@args,
 	Str:D :$config-file = "",
 	Bool:D :$force = False,
-	Bool:D :$no-user-config = False,
+	Bool:D :$user-config = False,
 	Bool:D :$verbose = False,
 ) is export {
-	my Config $config = get-config(:$config-file, :$no-user-config);
+	my Config $config = get-config(:$config-file, :$user-config);
 
 	$config<runtime> = %();
 	$config<force> = $force;

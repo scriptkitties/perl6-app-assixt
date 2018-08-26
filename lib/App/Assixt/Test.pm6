@@ -12,7 +12,7 @@ sub run-bin(
 		"$*EXECUTABLE"
 		-I "$assixt-dir/lib"
 		"$assixt-dir/bin/assixt"
-		--no-user-config
+		--/user-config
 	»;
 
 	@runnable.push: |@args;

@@ -24,7 +24,7 @@ my %test-meta = %(
 	meta-version => 0
 );
 
-my $config = get-config(:no-user-config);
+my $config = get-config(:!user-config);
 
 subtest "Create a new module", {
 	plan 8;

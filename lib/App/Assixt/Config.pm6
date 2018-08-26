@@ -8,7 +8,7 @@ unit module App::Assixt::Config;
 
 sub get-config(
 	:$config-file,
-	Bool:D :$no-user-config = False,
+	Bool:D :$user-config = True,
 	--> Config
 ) is export {
 	my Config $config .= new;
@@ -42,7 +42,7 @@ sub get-config(
 
 	my Str @paths;
 
-	unless ($no-user-config) {
+	if ($user-config) {
 		@paths =
 			"{$*HOME}/.config/assixt.toml",
 		;
