@@ -20,7 +20,7 @@ method run(
 
 	my IO::Path $dir = $config<runtime><cwd>
 		?? $config<runtime><cwd>.IO
-		!! $*CWD
+		!! $config<cwd>
 		;
 
 	# Make sure the directory path isn't already in use

@@ -58,6 +58,7 @@ sub get-config(
 	}
 
 	# Add special values
+	$config<cwd> = $*CWD;
 	$config<force> = False;
 	$config<verbose> = False;
 

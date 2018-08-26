@@ -12,6 +12,9 @@ Versioning](http://semver.org/spec/v2.0.0.html).
   configuration key.
 - The `api` key in the `META6.json` now gets updated to reflect the major
   version number.
+- `dist` requires a `source-url` to be set in the `META6.json`.
+- New command, `meta source-url` has been added to update the `source-url` in
+  the `META6.json`.
 
 ### Changed
 - The `.gitlab-ci.yml` generated during `new` should now have the correct names

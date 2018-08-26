@@ -8,13 +8,14 @@ use Config;
 
 unit module App::Assixt::Main;
 
-sub MAIN(
+sub MAIN (
 	Str:D $command = "help",
 	*@args,
-	Str:D :$config-file = "",
 	Bool:D :$force = False,
 	Bool:D :$user-config = False,
 	Bool:D :$verbose = False,
+	Str:D :$config-file = "",
+	Str:D :$module = $*CWD,
 ) is export {
 	my Config $config = get-config(:$config-file, :$user-config);
 
@@ -22,19 +23,20 @@ sub MAIN(
 	$config<force> = $force;
 	$config<verbose> = $verbose;
 	$config<file> = $config-file;
+	$config<cwd> = $module;
 
 	@args = parse-args(@args, :$config);
 
 	my $lib = "App::Assixt::Commands::$command.tclc()";
+
+	note "Using $lib to handle $command" if $config<verbose>;
 
 	try require ::($lib);
 
 	if (::($lib) ~~ Failure) {
 		note "Command $command wasn't recognized. Try -h for usage help.";
 
-		if ($config<verbose>) {
-			note ::($lib).Str;
-		}
+		note ::($lib).Str if $config<verbose>;
 
 		exit 2;
 	}
