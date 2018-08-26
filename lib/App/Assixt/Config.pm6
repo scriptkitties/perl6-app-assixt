@@ -6,7 +6,7 @@ use Config;
 
 unit module App::Assixt::Config;
 
-sub get-config(
+sub get-config (
 	:$config-file,
 	Bool:D :$user-config = True,
 	--> Config
@@ -61,6 +61,7 @@ sub get-config(
 	$config<cwd> = $*CWD;
 	$config<force> = False;
 	$config<verbose> = False;
+	$config<config-file> = $config-file if $config-file;
 
 	# Add config from environment
 	for $config.keys -> $key {
@@ -74,21 +75,37 @@ sub get-config(
 	$config;
 }
 
-multi sub put-config(Config:D :$config is copy, Str:D :$path) is export
-{
+multi sub put-config(
+	Config:D :$config,
+	Str:D :$path,
+) is export {
 	return put-config(:$config) if $path eq "";
 
-	$config<file>:delete if $config<file>:exists;
-	$config<force>:delete if $config<force>:exists;
-	$config<runtime>:delete if $config<runtime>:exists;
-	$config<verbose>:delete if $config<verbose>:exists;
+	my Config $clean-config = $config.clone;
 
-	$config.write($path);
+	config-ignored().map({ $clean-config{$_}:delete if $clean-config{$_}:exists });
+
+	$clean-config.write($path);
+
+	$config;
 }
 
-multi sub put-config(Config:D :$config) is export
-{
-	put-config(:$config, :path("$*HOME/.config/assixt.toml"))
+multi sub put-config(
+	Config:D :$config;
+) is export {
+	samewith(:$config, :path("$*HOME/.config/assixt.toml"))
+}
+
+sub config-ignored (
+	--> Positional
+) is export {
+	<
+		config-file
+		cwd
+		force
+		runtime
+		verbose
+	>
 }
 
 =begin pod

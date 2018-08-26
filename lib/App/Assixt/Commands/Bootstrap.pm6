@@ -4,27 +4,32 @@ use v6.c;
 
 use Config;
 
-class App::Assixt::Commands::Bootstrap
-{
-	method run(*@args, Config:D :$config)
-	{
-		my $type = @args.head.tclc;
-		my $lib = "App::Assixt::Commands::Bootstrap::$type";
+unit class App::Assixt::Commands::Bootstrap;
 
-		try require ::($lib);
+method run(
+	*@args,
+	Config:D :$config
+) {
+	my $type = @args.shift;
+	my $formatted-type = $type.split("-", :g)».tclc.join();
+	my $lib = "App::Assixt::Commands::Bootstrap::$formatted-type";
 
-		if (::($lib) ~~ Failure) {
-			note "No idea what to do with a $type";
+	note "Using $lib to handle $type" if $config<verbose>;
 
-			if ($config<verbose>) {
-				note ::($lib).Str;
-			}
+	try require ::($lib);
 
-			exit 2;
-		}
+	if (::($lib) ~~ Failure) {
+		note qq:to/EOF/;
+			Unknown type '$type'. Read the documentation on
+			App::Assixt::Commands::Bootstrap for a list of available types.
+			EOF
 
-		::($lib).run(|@args, :$config);
+		note ::($lib).Str if $config<verbose>;
+
+		return;
 	}
+
+	::($lib).run(|@args, :$config);
 }
 
 =begin pod
@@ -36,6 +41,15 @@ class App::Assixt::Commands::Bootstrap
 =head1 Synopsis
 
 assixt bootstrap <target>
+
+=head2 Targets
+
+=defn config
+Walk through all configuration options, and save the updated configuration to
+the configuration file.
+
+You can find an overview of all available configuration options with their
+descriptions in the documentation of C<App::Assixt::Config>.
 
 =head1 Description
 

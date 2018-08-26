@@ -22,7 +22,7 @@ sub MAIN (
 	$config<runtime> = %();
 	$config<force> = $force;
 	$config<verbose> = $verbose;
-	$config<file> = $config-file;
+	$config<config-file> = $config-file;
 	$config<cwd> = $module;
 
 	@args = parse-args(@args, :$config);

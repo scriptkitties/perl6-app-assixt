@@ -6,37 +6,32 @@ use Test;
 
 BEGIN plan :skip-all<set AUTHOR_TESTING=1 to run bin tests> unless %*ENV<AUTHOR_TESTING>;
 
-use File::Temp;
+use App::Assixt::Commands::Bootstrap::Config;
 use App::Assixt::Config;
 use App::Assixt::Test;
+use Config;
+use File::Temp;
 
-plan 2;
+plan 1;
 
-my $assixt = $*CWD;
-my $root = tempdir;
-
-chdir $root;
-
-ok create-test-module($assixt, "Local::Test::Bootstrap::Config"), "assixt new Local::Test::Bootstrap Config";
+my IO::Path $module = create-test-module("Local::Test::Bootstrap::Config", tempdir.IO);
+my Config $config = get-config(:!user-config).read: %(
+	:force,
+	config-file => (tempfile)[0] ~ ".toml",
+);
 
 subtest "Set configuration option", {
-	plan 3;
+	plan 2;
 
-	ok run-bin($assixt, «
-		--force
-		"--config-file=$root/assixt.toml"
-		bootstrap
-		config
-		assixt.distdir
-		/tmp
-	»), "assixt bootstrap config assixt.distdir /tmp";
+	App::Assixt::Commands::Bootstrap::Config.run("assixt.distdir", "/tmp", :$config);
 
-	my $config = get-config(
-		config-file => "$root/assixt.toml",
+	my Config $updated-config = get-config(
+		:!user-config,
+		config-file => $config<config-file>,
 	);
 
-	ok $config, "Written config loads correctly";
-	is $config<assixt><distdir>, "/tmp", "Updated config option saved correctly";
-};
+	ok $updated-config, "Written config loads correctly";
+	is $updated-config<assixt><distdir>, "/tmp", "Updated config option saved correctly";
+}
 
 # vim: ft=perl6 noet

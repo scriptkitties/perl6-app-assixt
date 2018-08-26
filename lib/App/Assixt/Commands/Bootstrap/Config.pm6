@@ -7,76 +7,82 @@ use App::Assixt::Input;
 use Config;
 use Dist::Helper::Meta;
 
-class App::Assixt::Commands::Bootstrap::Config
-{
-	multi method run(
-		"config",
-		Str:D $option,
-		Str:D $value,
-		Config:D :$config,
-	) {
-		die "Invalid config option $option" unless $config{$option}:exists;
+unit class App::Assixt::Commands::Bootstrap::Config;
 
-		given $config{$option} {
-			when Bool { $config.set($option, $value.starts-with('y')) }
-			when Int  { $config.set($option, +$value)                 }
-			when Str  { $config.set($option, ~$value)                 }
-		}
+multi method run (
+	Str:D $option,
+	Str:D $value,
+	Config:D :$config,
+) {
+	if ($config{$option}:!exists) {
+		note qq:to/EOF/;
+			Not a valid configuration key '$option'. For a list of available
+			configuration keys used in assixt, read the documentation on
+			App::Assixt::Config.
+			EOF
 
-		if (!$config<force>) {
-			say "$option = {$config{$option}}";
-			return unless confirm("Save?");
-		}
-
-		put-config(:$config, path => $config<file>);
-
-		say "Configuration updated";
+		return;
 	}
 
-	multi method run(
-		"config",
-		Str:D $option,
-		Config:D :$config,
-	) {
-		die "Invalid config option $option" unless $config{$option}:exists;
+	given $config{$option} {
+		when Bool { $config.set($option, $value.starts-with('y')) }
+		when Int  { $config.set($option, +$value)                 }
+		when Str  { $config.set($option, ~$value)                 }
+	}
 
-		given $config{$option} {
-			when Bool { $config.set($option, confirm($option, $config.get($option, False))) }
-			when Int  { $config.set($option, +ask($option, $config.get($option, 0)))        }
-			when Str  { $config.set($option, ask($option, $config.get($option, "")))        }
-		}
-
+	if (!$config<force>) {
 		say "$option = {$config{$option}}";
+		return unless confirm("Save?");
 	}
 
-	multi method run(
-		"config",
-		Config:D :$config,
-	) {
-		my @ignored-keys = <
-			file
-			force
-			verbose
-			pause.id
-		>;
+	put-config(:$config, path => $config<config-file>);
 
-		for $config.keys -> $option {
-			next if @ignored-keys (cont) $option;
-
-			self.run(
-				"config",
-				$option,
-				:$config,
-			);
-		}
-
-		return unless $config<force> || confirm("Save?");
-
-		put-config(:$config, path => $config<file>);
-
-		say "Configuration updated";
-	}
+	say "Configuration updated";
 }
+
+multi method run (
+	Str:D $option,
+	Config:D :$config,
+) {
+	if ($config{$option}:!exists) {
+		note qq:to/EOF/;
+			Not a valid configuration key '$option'. For a list of available
+			configuration keys used in assixt, read the documentation on
+			App::Assixt::Config.
+			EOF
+
+		return;
+	}
+
+	given $config{$option} {
+		when Bool { $config.set($option, confirm($option, $config.get($option, False))) }
+		when Int  { $config.set($option, +ask($option, $config.get($option, 0)))        }
+		when Str  { $config.set($option, ask($option, $config.get($option, "")))        }
+	}
+
+	say "$option = {$config{$option}}";
+
+	$config{$option};
+}
+
+multi method run (
+	Config:D :$config,
+) {
+	my @ignored-keys = config-ignored();
+
+	for $config.keys -> $option {
+		next if @ignored-keys (cont) $option;
+
+		samewith($option, :$config);
+	}
+
+	return unless $config<force> || confirm("Save?");
+
+	put-config(:$config, path => $config<config-file>);
+
+	say "Configuration updated";
+}
+
 
 =begin pod
 

@@ -17,7 +17,7 @@ method run(*@args, Config:D :$config)
 	try require ::($lib);
 
 	if (::($lib) ~~ Failure) {
-		note q:to/EOF/;
+		note qq:to/EOF/;
 			Unknown type '$type'. Read the documentation on App::Assixt::Commands::Touch
 			for a list of available types.
 			EOF
