@@ -8,13 +8,32 @@ use Config;
 
 unit module App::Assixt::Main;
 
+#| An extensive toolkit for module developers.
 sub MAIN (
-	Str:D $command = "help",
+	#| The command to run. Read App::Assixt for a list of available commands
+	#| and their descriptions.
+	Str:D $command,
+
+	#| Additional arguments to the command you're running.
 	*@args,
+
+	#| Ignores most sanity checks when set to True. Use at your own risk.
 	Bool:D :$force = False,
-	Bool:D :$user-config = False,
+
+	#| If disabled, do not load custom user configuration. This can be useful
+	#| to debug whether an issue is due to your configuration.
+	Bool:D :$user-config = True,
+
+	#| Enable additional verbosity. This is usually only useful if you're
+	#| debugging an issue.
 	Bool:D :$verbose = False,
+
+	#| A path to a configuration file, which will be loaded instead of the
+	#| default found at $HOME/.config/assixt.toml.
 	Str:D :$config-file = "",
+
+	#| Override the current working directory for assixt. This can be used to
+	#| work on modules outside of the current working directory.
 	Str:D :$module = $*CWD,
 ) is export {
 	my Config $config = get-config(:$config-file, :$user-config);

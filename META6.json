@@ -28,7 +28,6 @@
     "App::Assixt::Commands::Clean": "lib/App/Assixt/Commands/Clean.pm6",
     "App::Assixt::Commands::Depend": "lib/App/Assixt/Commands/Depend.pm6",
     "App::Assixt::Commands::Dist": "lib/App/Assixt/Commands/Dist.pm6",
-    "App::Assixt::Commands::Help": "lib/App/Assixt/Commands/Help.pm6",
     "App::Assixt::Commands::Meta": "lib/App/Assixt/Commands/Meta.pm6",
     "App::Assixt::Commands::Meta::SourceUrl": "lib/App/Assixt/Commands/Meta/SourceUrl.pm6",
     "App::Assixt::Commands::New": "lib/App/Assixt/Commands/New.pm6",
