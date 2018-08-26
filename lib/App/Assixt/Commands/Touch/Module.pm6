@@ -6,27 +6,28 @@ use Config;
 use Dist::Helper::Meta;
 use Dist::Helper::Template;
 
-unit class App::Assixt::Commands::Touch::Bin;
+unit class App::Assixt::Commands::Touch::Module;
 
 method run(
 	Str:D $provide,
 	Config:D :$config,
 ) {
 	my %meta = get-meta($config<cwd>);
-	my $path = $config<cwd>.add("bin").add($provide);
+	my $lib = $config<cwd>.add("lib");
 
-	if ($path.e && !$config<force>) {
+	$provide.split("::", :g).map({ $lib.=add($_) });
+	$lib.=extension("pm6", :0parts);
+
+	if ($lib.e && !$config<force>) {
 		note qq:to/EOF/;
-			A file already exists at {$path.absolute}. Remove the file, or run this command
+			A file already exists at {$lib.absolute}. Remove the file, or run this command
 			again with `--force` to ignore the error.
 			EOF
 
 		return;
 	}
 
-	mkdir $path.parent;
-
-	template("module/bin", $path, context => %(
+	template("module/module", $lib, clobber => $config<force>, context => %(
 		perl => %meta<perl>,
 		vim => template("vim-line/$config<style><indent>", context => $config<style>).trim-trailing,
 		author => %meta<authors>.join(", "),
@@ -35,14 +36,14 @@ method run(
 	));
 
 	# Update META6.json
-	%meta<provides>{$provide} = $path.relative($config<cwd>);
+	%meta<provides>{$provide} = $lib.relative($config<cwd>);
 
 	put-meta(%meta, $config<cwd>);
 
 	# Inform the user of success
 	say "Added $provide to {%meta<name>}";
 
-	$path;
+	$lib;
 }
 
 # vim: ft=perl6 noet

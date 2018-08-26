@@ -4,7 +4,7 @@ use v6.c;
 
 use Config;
 
-class App::Assixt::Commands::Touch;
+unit class App::Assixt::Commands::Touch;
 
 method run(*@args, Config:D :$config)
 {
