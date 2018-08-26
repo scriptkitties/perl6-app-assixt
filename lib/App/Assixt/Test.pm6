@@ -2,6 +2,10 @@
 
 use v6.c;
 
+use App::Assixt::Commands::New;
+use App::Assixt::Config;
+use Config;
+
 unit module App::Assixt::Test;
 
 sub run-bin(
@@ -20,17 +24,27 @@ sub run-bin(
 	run @runnable;
 }
 
-sub create-test-module(
-	IO::Path:D $assixt-dir,
+multi sub create-test-module(
 	Str:D $name = "Local::Test::Assixt",
+	IO::Path:D $directory = $*CWD,
+	%config-overrides = %(),
 ) is export {
-	run-bin($assixt-dir, «
-		new
-		"--name=\"$name\""
-		'--author="Patrick Spek"'
-		--email=p.spek@tyil.work
-		--perl=c
-		--description=Nondescript
-		--license=GPL-3.0
-	»);
+	my Config $config = get-config(:!user-config);
+
+	$config.read: %(
+		runtime => %(
+			name => $name,
+			author => "Patrick Spek",
+			email => "p.spek@tyil.work",
+			perl => "c",
+			description => "Nondescript",
+			license => "AGPL-3.0",
+			source-url => "Localhost",
+			cwd => $directory,
+		),
+	);
+
+	$config.read: %config-overrides;
+
+	App::Assixt::Commands::New.run(:$config);
 }
