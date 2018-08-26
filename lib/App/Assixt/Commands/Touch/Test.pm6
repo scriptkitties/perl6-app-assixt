@@ -6,31 +6,33 @@ use Config;
 use Dist::Helper::Meta;
 use Dist::Helper::Template;
 
-class App::Assixt::Commands::Touch::Test
-{
-	method run(
-		"test",
-		Str $test,
-		Config:D :$config,
-	) {
-		my %meta = get-meta;
-		my $path = "./t".IO;
+unit class App::Assixt::Commands::Touch::Test;
 
-		$path = $path.add($test);
-		$path = $path.extension("t", parts => 0);
+method run (
+	Str:D $test,
+	Config:D :$config,
+) {
+	my %meta = get-meta($config<cwd>);
+	my $path = $config<cwd>.add("t").add($test).extension("t", :0parts);
 
-		if ($path.e) {
-			die "File already exists at {$path.absolute}";
-		}
+	if ($path.e) {
+		note qq:to/EOF/;
+			A file already exists at {$path.absolute}. Remove it, or run this
+			command again with `--force` to ignore this error.
+			EOF
 
-		my %context = %(
-			perl => %meta<perl>,
-			vim => template("vim-line/$config<style><indent>", context => $config<style>).trim-trailing,
-		);
-
-		template("module/test", $path, :%context);
-
-		# Inform the user of success
-		say "Added test $test to {%meta<name>}";
+		return;
 	}
+
+	my %context = %(
+		perl => %meta<perl>,
+		vim => template("vim-line/$config<style><indent>", context => $config<style>).trim-trailing,
+	);
+
+	template("module/test", $path, :%context);
+
+	# Inform the user of success
+	say "Added test $test to {%meta<name>}";
+
+	$path;
 }
