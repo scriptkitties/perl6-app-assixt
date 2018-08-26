@@ -46,12 +46,9 @@
     "App::Assixt::Config": "lib/App/Assixt/Config.pm6",
     "App::Assixt::Input": "lib/App/Assixt/Input.pm6",
     "App::Assixt::Main": "lib/App/Assixt/Main.pm6",
-    "App::Assixt::Usage": "lib/App/Assixt/Usage.pm6",
     "assixt": "bin/assixt"
   },
   "resources": [
-    "docopt.txt",
-    "man/assixt.1.adoc"
   ],
   "source-url": "https://gitlab.com/tyil/perl6-app-assixt.git",
   "tags": [

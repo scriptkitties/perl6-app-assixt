@@ -3,13 +3,12 @@
 use v6.c;
 
 use App::Assixt::Config;
-use App::Assixt::Usage;
 use Config;
 
 unit module App::Assixt::Main;
 
 #| An extensive toolkit for module developers.
-sub MAIN (
+multi sub MAIN (
 	#| The command to run. Read App::Assixt for a list of available commands
 	#| and their descriptions.
 	Str:D $command,
@@ -34,7 +33,7 @@ sub MAIN (
 
 	#| Override the current working directory for assixt. This can be used to
 	#| work on modules outside of the current working directory.
-	Str:D :$module = $*CWD,
+	Str:D :$module = ".",
 ) is export {
 	my Config $config = get-config(:$config-file, :$user-config);
 
@@ -42,7 +41,7 @@ sub MAIN (
 	$config<force> = $force;
 	$config<verbose> = $verbose;
 	$config<config-file> = $config-file;
-	$config<cwd> = $module;
+	$config<cwd> = $module.IO;
 
 	@args = parse-args(@args, :$config);
 
@@ -53,7 +52,12 @@ sub MAIN (
 	try require ::($lib);
 
 	if (::($lib) ~~ Failure) {
-		note "Command $command wasn't recognized. Try -h for usage help.";
+		note qq:to/EOF/;
+			Unrecognized command '$command'. You can get a quick synopsis of
+			assixt by running it with `--help`. You can find a list of possible
+			commands with a small description in the documentation for
+			App::Assixt.
+			EOF
 
 		note ::($lib).Str if $config<verbose>;
 

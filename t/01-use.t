@@ -6,7 +6,12 @@ use JSON::Fast;
 use Test;
 
 my %meta = from-json(slurp("META6.json"));
-my @provides = %meta<provides>.keys.grep(* ne "assixt");
+my @provides = %meta<provides>
+	.keys
+	.grep(* ne "assixt")
+	.grep(* ne "App::Assixt::Main")
+	.sort
+	;
 
 plan @provides.elems;
 

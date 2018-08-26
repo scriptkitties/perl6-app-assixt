@@ -2,7 +2,6 @@
 
 use v6.c;
 
-use App::Assixt::Templates;
 use Config;
 use Dist::Helper::Meta;
 use Dist::Helper::Template;
@@ -40,7 +39,7 @@ multi method run (
 		return
 	}
 
-	my IO::Path $output = $config<cwd>.add(template-location($template));
+	my IO::Path $output = $config<cwd>.add(self.template-location($template));
 
 	if ($output.e && !$config<force>) {
 		note qq:to/EOF/;
