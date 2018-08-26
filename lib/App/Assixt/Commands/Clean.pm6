@@ -2,41 +2,53 @@
 
 use v6.c;
 
-use Config;
 use App::Assixt::Input;
+use Config;
 use Dist::Helper::Clean;
 use Dist::Helper::Meta;
 
-class App::Assixt::Commands::Clean
-{
-	method run(
-		Str:D $path = ".",
-		Config:D :$config,
-	) {
-		# Clean up the META6.json
-		unless ($config<runtime><no-meta>) {
-			my %meta = clean-meta(
-				:$path,
-				force => $config<force>,
-				verbose => $config<verbose>,
-			);
+unit class App::Assixt::Commands::Clean;
 
-			put-meta(:%meta, :$path) if $config<force> || confirm("Save cleaned META6.json?");
-		}
+multi method run (
+	IO::Path:D $path,
+	Config:D :$config,
+) {
+	# Clean up the META6.json
+	unless ($config<runtime><no-meta>) {
+		my %meta = clean-meta(
+			$path,
+			force => $config<force>,
+			verbose => $config<verbose>,
+		);
 
-		# Clean up unreferenced files
-		unless ($config<runtime><no-files>) {
-			my @orphans = clean-files(
-				:$path,
-				force => $config<force>,
-				verbose => $config<verbose>,
-			);
+		put-meta(%meta, $path) if $config<force> || confirm("Save cleaned META6.json?");
+	}
 
-			for @orphans -> $orphan {
-				unlink($orphan) if $config<force> || confirm("Really delete $orphan?");
-			}
+	# Clean up unreferenced files
+	unless ($config<runtime><no-files>) {
+		my @orphans = clean-files(
+			$path,
+			force => $config<force>,
+			verbose => $config<verbose>,
+		);
+
+		for @orphans -> $orphan {
+			unlink($orphan) if $config<force> || confirm("Really delete $orphan?");
 		}
 	}
+}
+
+multi method run (
+	Str:D $path,
+	Config:D :$config,
+) {
+	samewith($path.IO, :$config);
+}
+
+multi method run (
+	Config:D :$config,
+) {
+	samewith($config<cwd>, :$config);
 }
 
 =begin pod

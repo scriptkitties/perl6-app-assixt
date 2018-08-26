@@ -7,7 +7,7 @@
     "CPAN::Uploader::Tiny:ver<0.0.6+>",
     "Config::Parser::toml:ver<1.0.1+>",
     "Config:api<2>:ver<2.0.1+>",
-    "Dist::Helper:ver<0.21.2+>",
+    "Dist::Helper:api<1>:ver<1.0.0+>",
     "Hash::Merge",
     "IO::Path::Dirstack:ver<0.1.1+>",
     "Pod::To::Markdown",
