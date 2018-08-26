@@ -57,6 +57,10 @@ sub get-config(
 		$config.read: $path;
 	}
 
+	# Add special values
+	$config<force> = False;
+	$config<verbose> = False;
+
 	# Add config from environment
 	for $config.keys -> $key {
 		my $env = "ASSIXT_" ~ $key.subst(/\-|\./, "_", :g).uc;
