@@ -12,7 +12,7 @@ class App::Assixt::Commands::Depend
 		Config:D :$config!,
 	) {
 		# Get the meta info
-		my %meta = get-meta;
+		my %meta = get-meta($config<cwd>);
 
 		# Install the new dependency with zef
 		unless ($config<runtime><no-install>) {
@@ -27,7 +27,7 @@ class App::Assixt::Commands::Depend
 		}
 
 		# Write the new META6.json
-		put-meta(:%meta);
+		put-meta(%meta, $config<cwd>);
 
 		# And finish off with some user friendly feedback
 		say "$module has been added as a dependency to {%meta<name>}";
