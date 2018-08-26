@@ -20,7 +20,14 @@ class App::Assixt::Commands::Push
 		chdir $path;
 
 		App::Assixt::Commands::Bump.run(:$config) unless $config<runtime><no-bump>;
+
 		my Str $dist = App::Assixt::Commands::Dist.run(:$config);
+
+		if (!$dist) {
+			note "Failed to create distribution tarball.";
+			return;
+		}
+
 		App::Assixt::Commands::Upload.run($dist, :$config);
 	}
 
