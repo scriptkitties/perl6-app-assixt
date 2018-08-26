@@ -18,7 +18,14 @@ class App::Assixt::Commands::Depend
 		unless ($config<runtime><no-install>) {
 			my $zef = run « zef --cpan install "$module" »;
 
-			die "Zef failed, bailing" if 0 < $zef.exitcode;
+			if (0 < $zef.exitcode) {
+				note qq:to/EOF/;
+					Failed to install $module with Zef, not adding the
+					dependency. You can skip the local installation and just
+					add the dependency to your module by adding `--no-install`
+					to the command.
+					EOF
+			}
 		}
 
 		# Add the new dependency if its not listed yet

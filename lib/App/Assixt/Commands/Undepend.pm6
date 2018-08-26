@@ -6,42 +6,41 @@ use Config;
 use Dist::Helper::Meta;
 use Zef::Distribution::DependencySpecification;
 
-class App::Assixt::Commands::Undepend
-{
-	multi method run(
-		Str:D $module,
-		Config:D :$config!,
-	) {
-		# Get the meta info
-		my %meta = get-meta;
-		my @depends = [];
+unit class App::Assixt::Commands::Undepend;
 
-		# Remove the dependency if it exists
-		my Zef::Distribution::DependencySpecification $spec .= new($module);
+multi method run(
+	Str:D $module,
+	Config:D :$config!,
+) {
+	# Get the meta info
+	my %meta = get-meta($config<cwd>);
+	my @depends = [];
 
-		for %meta<depends>.list {
-			my Zef::Distribution::DependencySpecification $dep-spec .= new($_);
+	# Remove the dependency if it exists
+	my Zef::Distribution::DependencySpecification $spec .= new($module);
 
-			next if $dep-spec.spec-matcher($spec);
+	for %meta<depends>.list {
+		my Zef::Distribution::DependencySpecification $dep-spec .= new($_);
 
-			@depends.push: $_;
-		}
+		next if $dep-spec.spec-matcher($spec);
 
-		%meta<depends> = @depends;
-
-		# Write the new META6.json
-		put-meta(:%meta);
-
-		# And finish off with some user friendly feedback
-		say "$module has been removed as a dependency from {%meta<name>}";
+		@depends.push: $_;
 	}
 
-	multi method run(
-		*@modules,
-		Config:D :$config!,
-	) {
-		samewith($_, :$config) for @modules;
-	}
+	%meta<depends> = @depends;
+
+	# Write the new META6.json
+	put-meta(%meta, $config<cwd>);
+
+	# And finish off with some user friendly feedback
+	say "$module has been removed as a dependency from {%meta<name>}";
+}
+
+multi method run(
+	*@modules,
+	Config:D :$config!,
+) {
+	samewith($_, :$config) for @modules;
 }
 
 =begin pod
