@@ -13,7 +13,7 @@ use Hash::Merge;
 
 unit class App::Assixt::Commands::New;
 
-method run(
+multi method run (
 	Config:D :$config,
 ) {
 	$config<runtime><name> //= ask("Module name");
@@ -102,6 +102,15 @@ method run(
 	$dir;
 }
 
+multi method run (
+	Str:D $name,
+	Config:D :$config,
+) {
+	$config<runtime><name> = $name;
+
+	samewith(:$config);
+}
+
 =begin pod
 
 =NAME    App::Assixt::Commands::New
@@ -110,7 +119,7 @@ method run(
 
 =head1 Synopsis
 
-assixt new [defaults]
+assixt new [name] [defaults]
 
 =head2 Defaults
 

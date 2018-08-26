@@ -10,53 +10,54 @@ use App::Assixt::Config;
 use App::Assixt::Test;
 use Dist::Helper::Meta;
 use File::Temp;
+use Config;
+use App::Assixt::Commands::New;
 
 plan 6;
 
-my $assixt = $*CWD;
-my $root = tempdir;
+my Config $config = get-config(:!user-config).read: %(
+	cwd => tempdir.IO,
+);
+
 my %test-meta = %(
 	author => "Patrick Spek",
 	description => "Just another test module",
 	email => "p.spek@tyil.work",
 	license => "GPL-3.0",
-	perl => "6.c",
-	meta-version => 0
+	perl => "c",
+	meta-version => 0,
+	source-url => "localhost",
 );
 
-my $config = get-config(:!user-config);
-
 subtest "Create a new module", {
-	plan 8;
+	plan 7;
 
-	chdir $root;
+	my IO::Path $module = App::Assixt::Commands::New.run(config => $config.clone.read: %(
+		runtime => %(
+			name => "Local::Test::Module",
+			author => %test-meta<author>,
+			email => %test-meta<email>,
+			perl => %test-meta<perl>,
+			description => %test-meta<description>,
+			license => %test-meta<license>,
+			source-url => %test-meta<source-url>,
+		),
+	));
 
-	ok run-bin($assixt, «
-		new
-		"--name=\"Local::Test::Module\""
-		"--author=\"%test-meta<author>\""
-		"--email=\"%test-meta<email>\""
-		--perl=c
-		"--description=\"%test-meta<description>\""
-		"--license=%test-meta<license>"
-	»), "assixt new";
-
-	my $module-root = "$root/{$config<new-module><dir-prefix>}Local-Test-Module";
-
-	ok $module-root.IO.d, "Module directory created";
-	ok "$module-root/.editorconfig".IO.e, "Editorconfig created";
-	ok "$module-root/.gitignore".IO.e, "Gitignore created";
-	ok "$module-root/.gitlab-ci.yml".IO.e, "GitLab CI config created";
-	ok "$module-root/.travis.yml".IO.e, "Travis config created";
-	ok "$module-root/CHANGELOG.md".IO.e, "CHANGELOG created";
+	ok $module.d, "Module directory created";
+	ok $module.add(".editorconfig").e, "Editorconfig created";
+	ok $module.add(".gitignore").e, "Gitignore created";
+	ok $module.add(".gitlab-ci.yml").e, "GitLab CI config created";
+	ok $module.add(".travis.yml").e, "Travis config created";
+	ok $module.add("CHANGELOG.md").e, "CHANGELOG created";
 
 	subtest "Verify META6.json", {
 		plan 10;
 
-		my %meta = get-meta($module-root);
+		my %meta = get-meta($module);
 
 		is %meta<meta-version>, %test-meta<meta-version>, "meta-version is correct";
-		is %meta<perl>, %test-meta<perl>, "perl is correct";
+		is %meta<perl>, "6.%test-meta<perl>", "perl is correct";
 		is %meta<name>, "Local::Test::Module", "name is correct";
 		is %meta<description>, %test-meta<description>, "description is correct";
 		is %meta<license>, %test-meta<license>, "license is correct";
@@ -69,34 +70,32 @@ subtest "Create a new module", {
 };
 
 subtest "Create a new module with force", {
-	plan 8;
+	plan 7;
 
-	chdir $root;
+	my IO::Path $module = App::Assixt::Commands::New.run(config => $config.clone.read: %(
+		:force,
+		runtime => %(
+			name => "Local::Test::Module",
+			author => %test-meta<author>,
+			email => %test-meta<email>,
+			perl => "d",
+			description => "Nondescript",
+			license => %test-meta<license>,
+			source-url => %test-meta<source-url>,
+		),
+	));
 
-	ok run-bin($assixt, «
-		--force
-		new
-		"--name=\"Local::Test::Module\""
-		"--author=\"%test-meta<author>\""
-		"--email=%test-meta<email>"
-		--perl=d
-		--description=Nondescript
-		"--license=%test-meta<license>"
-	»), "assixt new --force";
-
-	my $module-root = "$root/{$config<new-module><dir-prefix>}Local-Test-Module";
-
-	ok $module-root.IO.d, "Module directory created";
-	ok "$module-root/.gitignore".IO.e, "Gitignore created";
-	ok "$module-root/.gitlab-ci.yml".IO.e, "GitLab CI config created";
-	ok "$module-root/.editorconfig".IO.e, "Editorconfig created";
-	ok "$module-root/.travis.yml".IO.e, "Travis config created";
-	ok "$module-root/CHANGELOG.md".IO.e, "CHANGELOG created";
+	ok $module.d, "Module directory created";
+	ok $module.add(".gitignore").e, "Gitignore created";
+	ok $module.add(".gitlab-ci.yml").e, "GitLab CI config created";
+	ok $module.add(".editorconfig").e, "Editorconfig created";
+	ok $module.add(".travis.yml").e, "Travis config created";
+	ok $module.add("CHANGELOG.md").e, "CHANGELOG created";
 
 	subtest "Verify META6.json", {
 		plan 10;
 
-		my %meta = get-meta($module-root);
+		my %meta = get-meta($module);
 
 		is %meta<meta-version>, %test-meta<meta-version>, "meta-version is correct";
 		is %meta<perl>, "6.d", "perl is correct";
@@ -112,111 +111,107 @@ subtest "Create a new module with force", {
 };
 
 subtest "Create a new module without gitignore", {
-	plan 7;
+	plan 6;
 
-	chdir $root;
+	my IO::Path $module = App::Assixt::Commands::New.run(config => $config.clone.read: %(
+		cwd => tempdir.IO,
+		runtime => %(
+			:no-git,
+			name => "Local::Test::Module",
+			author => %test-meta<author>,
+			email => "6.d",
+			perl => %test-meta<perl>,
+			description => "Nondescript",
+			license => %test-meta<license>,
+			source-url => %test-meta<source-url>,
+		),
+	));
 
-	ok run-bin($assixt, «
-		new
-		"--name=\"Local::Test::NoGitModule\""
-		"--author=\"%test-meta<author>\""
-		"--email=%test-meta<email>"
-		--perl=c
-		"--description=\"%test-meta<description>\""
-		"--license=%test-meta<license>"
-		--no-git
-	»), "assixt new --no-git";
+	ok $module.d, "Module directory created";
+	ok $module.add(".editorconfig").e, "Editorconfig created";
+	ok $module.add(".gitlab-ci.yml").e, "GitLab CI config created";
+	ok $module.add(".travis.yml").e, "Travis config created";
+	ok $module.add("CHANGELOG.md").e, "CHANGELOG created";
 
-	my $module-root = "$root/{$config<new-module><dir-prefix>}Local-Test-NoGitModule";
-
-	ok $module-root.IO.d, "Module directory created";
-	ok "$module-root/.editorconfig".IO.e, "Editorconfig created";
-	ok "$module-root/.gitlab-ci.yml".IO.e, "GitLab CI config created";
-	ok "$module-root/.travis.yml".IO.e, "Travis config created";
-	ok "$module-root/CHANGELOG.md".IO.e, "CHANGELOG created";
-
-	nok "$module-root/.gitignore".IO.e, "Gitignore missing";
+	nok $module.add(".gitignore").e, "Gitignore missing";
 };
 
 subtest "Create a new module without Travis info", {
-	plan 7;
+	plan 6;
 
-	chdir $root;
+	my IO::Path $module = App::Assixt::Commands::New.run(config => $config.clone.read: %(
+		cwd => tempdir.IO,
+		runtime => %(
+			:no-travis,
+			name => "Local::Test::Module",
+			author => %test-meta<author>,
+			email => "6.d",
+			perl => %test-meta<perl>,
+			description => "Nondescript",
+			license => %test-meta<license>,
+			source-url => %test-meta<source-url>,
+		),
+	));
 
-	ok run-bin($assixt, «
-		new
-		"--name=\"Local::Test::NoTravisModule\""
-		"--author=\"%test-meta<author>\""
-		"--email=%test-meta<email>"
-		--perl=c
-		"--description=\"%test-meta<description>\""
-		"--license=%test-meta<license>"
-		--no-travis
-	»), "assixt new --no-travis";
+	ok $module.d, "Module directory created";
+	ok $module.add(".editorconfig").e, "Editorconfig created";
+	ok $module.add(".gitignore").e, "Gitignore created";
+	ok $module.add(".gitlab-ci.yml").e, "GitLab CI config created";
+	ok $module.add("CHANGELOG.md").e, "CHANGELOG created";
 
-	my $module-root = "$root/{$config<new-module><dir-prefix>}Local-Test-NoTravisModule";
-
-	ok $module-root.IO.d, "Module directory created";
-	ok "$module-root/.editorconfig".IO.e, "Editorconfig created";
-	ok "$module-root/.gitignore".IO.e, "Gitignore created";
-	ok "$module-root/.gitlab-ci.yml".IO.e, "GitLab CI config created";
-	ok "$module-root/CHANGELOG.md".IO.e, "CHANGELOG created";
-
-	nok "$module-root/.travis.yml".IO.e, "Travis config missing";
+	nok $module.add(".travis.yml").e, "Travis config missing";
 };
 
 subtest "Create a new module without GitLab CI info", {
-	plan 7;
+	plan 6;
 
-	chdir $root;
+	my IO::Path $module = App::Assixt::Commands::New.run(config => $config.clone.read: %(
+		cwd => tempdir.IO,
+		runtime => %(
+			:no-gitlab-ci,
+			name => "Local::Test::Module",
+			author => %test-meta<author>,
+			email => "6.d",
+			perl => %test-meta<perl>,
+			description => "Nondescript",
+			license => %test-meta<license>,
+			source-url => %test-meta<source-url>,
+		),
+	));
 
-	ok run-bin($assixt, «
-		new
-		"--name=\"Local::Test::NoGitLabModule\""
-		"--author=\"%test-meta<author>\""
-		"--email=%test-meta<email>"
-		--perl=c
-		"--description=\"%test-meta<description>\""
-		"--license=%test-meta<license>"
-		--no-gitlab-ci
-	»), "assixt new --no-gitlab-ci";
+	ok $module.d, "Module directory created";
+	ok $module.add(".editorconfig").e, "Editorconfig created";
+	ok $module.add(".gitignore").e, "Gitignore created";
+	ok $module.add(".travis.yml").e, "Travis config created";
+	ok $module.add("CHANGELOG.md").e, "CHANGELOG created";
 
-	my $module-root = "$root/{$config<new-module><dir-prefix>}Local-Test-NoGitLabModule";
-
-	ok $module-root.IO.d, "Module directory created";
-	ok "$module-root/.editorconfig".IO.e, "Editorconfig created";
-	ok "$module-root/.gitignore".IO.e, "Gitignore created";
-	ok "$module-root/.travis.yml".IO.e, "Travis config created";
-	ok "$module-root/CHANGELOG.md".IO.e, "CHANGELOG created";
-
-	nok "$module-root/.gitlab-ci.yml".IO.e, "GitLab CI config missing";
+	nok $module.add(".gitlab-ci.yml").e, "GitLab CI config missing";
 };
 
 subtest "Create a new module without a changelog", {
-	plan 7;
+	plan 6;
 
-	chdir $root;
+	my IO::Path $module = App::Assixt::Commands::New.run(config => $config.clone.read: %(
+		cwd => tempdir.IO,
+		runtime => %(
+			:no-changelog,
+			name => "Local::Test::Module",
+			author => %test-meta<author>,
+			email => "6.d",
+			perl => %test-meta<perl>,
+			description => "Nondescript",
+			license => %test-meta<license>,
+			source-url => %test-meta<source-url>,
+		),
+	));
 
-	ok run-bin($assixt, «
-		new
-		"--name=\"Local::Test::NoChangelogModule\""
-		"--author=\"%test-meta<author>\""
-		"--email=%test-meta<email>"
-		--perl=c
-		"--description=\"%test-meta<description>\""
-		"--license=%test-meta<license>"
-		--no-changelog
-	»), "assixt new --no-changelog";
+	ok $module.d, "Module directory created";
+	ok $module.add(".editorconfig").e, "Editorconfig created";
+	ok $module.add(".gitignore").e, "Gitignore created";
+	ok $module.add(".travis.yml").e, "Travis config created";
+	ok $module.add(".gitlab-ci.yml").e, "GitLab CI config created";
 
-	my $module-root = "$root/{$config<new-module><dir-prefix>}Local-Test-NoChangelogModule";
-
-	ok $module-root.IO.d, "Module directory created";
-	ok "$module-root/.editorconfig".IO.e, "Editorconfig created";
-	ok "$module-root/.gitignore".IO.e, "Gitignore created";
-	ok "$module-root/.travis.yml".IO.e, "Travis config created";
-	ok "$module-root/.gitlab-ci.yml".IO.e, "GitLab CI config created";
-
-	nok "$module-root/CHANGELOG.md".IO.e, "CHANGELOG missing";
+	nok $module.add("CHANGELOG.md").e, "CHANGELOG missing";
 };
 
 # vim: ft=perl6 noet

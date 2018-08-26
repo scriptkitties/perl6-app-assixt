@@ -15,6 +15,8 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 - `dist` requires a `source-url` to be set in the `META6.json`.
 - New command, `meta source-url` has been added to update the `source-url` in
   the `META6.json`.
+- `new` can now get it's name argument as first positional argument, i.e.:
+  `assixt new Foo::Bar`.
 
 ### Changed
 - The `.gitlab-ci.yml` generated during `new` should now have the correct names
