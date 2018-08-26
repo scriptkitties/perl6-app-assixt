@@ -11,90 +11,95 @@ use File::Directory::Tree;
 use File::Which;
 use Hash::Merge;
 
-class App::Assixt::Commands::New
-{
-	method run(
-		Config:D :$config,
-	) {
-		$config<runtime><name> //= ask("Module name");
+unit class App::Assixt::Commands::New;
 
-		my IO::Path $dir;
+method run(
+	Config:D :$config,
+) {
+	$config<runtime><name> //= ask("Module name");
 
-		# Make sure the directory path isn't already in use
-		CHECKPATH: loop {
-            # Get the full path
-			$dir .= new($config.get("new-module.dir-prefix") ~ $config<runtime><name>.subst("::", "-", :g));
+	my IO::Path $dir = $config<runtime><cwd>
+		?? $config<runtime><cwd>.IO
+		!! $*CWD
+		;
 
-			# No need to check anything if --force is supplied
-			last if $config<force>;
+	# Make sure the directory path isn't already in use
+	CHECKPATH: loop {
+		# Get the full path
+		$dir .= add($config.get("new-module.dir-prefix") ~ $config<runtime><name>.subst("::", "-", :g));
 
-			# Make sure it isn't already taken on the local system
-			if ($dir.e) {
-				note "{~$dir} is not empty! Use a different module name or remove the directory first.";
+		# No need to check anything if --force is supplied
+		last if $config<force>;
 
-				$config<runtime><name> = ask("Module name", $config<runtime><name>);
+		# Make sure it isn't already taken on the local system
+		if ($dir.e) {
+			note "{~$dir} is not empty! Use a different module name or remove the directory first.";
 
-				redo CHECKPATH;
-			}
+			$config<runtime><name> = ask("Module name", $config<runtime><name>);
 
-			# If we can reach this, it should be all right
-			last;
+			redo CHECKPATH;
 		}
 
-		$config<runtime><author> //= ask("Your name", $config.get("new-module.author"));
-		$config<runtime><email> //= ask("Your email address", $config.get("new-module.email"));
-		$config<runtime><perl> //= ask("Perl 6 version", $config.get("new-module.perl"));
-		$config<runtime><description> //= ask("Module description", "Nondescript");
-		$config<runtime><license> //= ask("License key", $config.get("new-module.license"));
-
-		# Create the initial %meta
-		my %meta = merge-hash(new-meta, %(
-			api => "0",
-			version => "0.0.0",
-			perl => "6.$config<runtime><perl>",
-			name => $config<runtime><name>,
-			description => $config<runtime><description>,
-			license => $config<runtime><license>,
-			authors => [
-				"$config<runtime><author> <$config<runtime><email>>"
-			],
-		));
-
-		# Create the module skeleton
-		mkdir $dir.absolute unless $dir.d;
-		chdir $dir;
-		mkdir "bin" unless $config<force> && "bin".IO.d;
-		mkdir "lib" unless $config<force> && "lib".IO.d;
-		mkdir "resources" unless $config<force> && "resources".IO.d;
-		mkdir "t" unless $config<force> && "t".IO.d;
-
-		template("readme.pod6", "README.pod6", clobber => $config<force>, context => %(
-			name => %meta<name>,
-				author => %meta<authors>.join(", "),
-				version => ~%meta<version>,
-				description => %meta<description>,
-				license => %meta<license>,
-		));
-
-		template("editorconfig", ".editorconfig", context => $config<style>, clobber => $config<force>);
-		template("gitignore", ".gitignore", clobber => $config<force>) if $config<external><git> && !$config<runtime><no-git>;
-		template("travis.yml", ".travis.yml", clobber => $config<force>) if $config<external><travis> && !$config<runtime><no-travis>;
-		template("changelog.md", "CHANGELOG.md", clobber => $config<force>) if !$config<runtime><no-changelog>;
-
-		if ($config<external><gitlab-ci> && !$config<runtime><no-gitlab-ci>) {
-			my %context =
-				name => $config<runtime><name>,
-				directory => $dir,
-			;
-
-			template("gitlab-ci.yml", ".gitlab-ci.yml", :%context, clobber => $config<force>);
-		}
-
-		# Write some files
-		put-meta(:%meta);
-
-		say "Created new project folder at {".".IO.absolute}";
+		# If we can reach this, it should be all right
+		last;
 	}
+
+	$config<runtime><author> //= ask("Your name", $config.get("new-module.author"));
+	$config<runtime><email> //= ask("Your email address", $config.get("new-module.email"));
+	$config<runtime><perl> //= ask("Perl 6 version", $config.get("new-module.perl"));
+	$config<runtime><description> //= ask("Module description", "Nondescript");
+	$config<runtime><license> //= ask("License key", $config.get("new-module.license"));
+	$config<runtime><source-url> //= ask("Source URL (optional)", "");
+
+	# Create the initial %meta
+	my %meta = merge-hash(new-meta, %(
+		api => "0",
+		version => "0.0.0",
+		perl => "6.$config<runtime><perl>",
+		name => $config<runtime><name>,
+		description => $config<runtime><description>,
+		license => $config<runtime><license>,
+		authors => [
+			"$config<runtime><author> <$config<runtime><email>>"
+		],
+		source-url => $config<runtime><source-url>,
+	));
+
+	# Create the module skeleton
+	mkdir $dir unless $dir.d;
+	mkdir $dir.add("bin") unless $config<force> && "bin".IO.d;
+	mkdir $dir.add("lib") unless $config<force> && "lib".IO.d;
+	mkdir $dir.add("resources") unless $config<force> && "resources".IO.d;
+	mkdir $dir.add("t") unless $config<force> && "t".IO.d;
+
+	template("readme.pod6", $dir.add("README.pod6"), clobber => $config<force>, context => %(
+		name => %meta<name>,
+		author => %meta<authors>.join(", "),
+		version => ~%meta<version>,
+		description => %meta<description>,
+		license => %meta<license>,
+	));
+
+	template("editorconfig", $dir.add(".editorconfig"), context => $config<style>, clobber => $config<force>);
+	template("gitignore", $dir.add(".gitignore"), clobber => $config<force>) if $config<external><git> && !$config<runtime><no-git>;
+	template("travis.yml", $dir.add(".travis.yml"), clobber => $config<force>) if $config<external><travis> && !$config<runtime><no-travis>;
+	template("changelog.md", $dir.add("CHANGELOG.md"), clobber => $config<force>) if !$config<runtime><no-changelog>;
+
+	if ($config<external><gitlab-ci> && !$config<runtime><no-gitlab-ci>) {
+		my %context =
+			name => $config<runtime><name>,
+			directory => $dir,
+		;
+
+		template("gitlab-ci.yml", $dir.add(".gitlab-ci.yml"), :%context, clobber => $config<force>);
+	}
+
+	# Write some files
+	put-meta(:%meta, path => $dir);
+
+	say "Created new project folder at {$dir.absolute}";
+
+	$dir;
 }
 
 =begin pod
