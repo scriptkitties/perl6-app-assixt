@@ -14,117 +14,113 @@ use Config;
 use File::Temp;
 use File::Which;
 
-plan 7;
+plan 6;
 
 skip-rest "'tar' is not available" and exit unless which("tar");
 
 my $assixt = $*CWD;
-my $root = tempdir;
+my IO::Path $module = create-test-module("Local::Test::Dist", tempdir.IO);
+my IO::Path $storage = tempdir.IO;
 
-chdir $root;
-
-ok create-test-module($assixt, "Local::Test::Dist"), "assixt new Local::Test::Dist";
-chdir "$root/perl6-Local-Test-Dist";
+my Config $config = get-config(:!user-config).read: %(
+	assixt => %(
+		distdir => $storage.absolute,
+	),
+);
 
 subtest "Create dist with normal config", {
 	plan 2;
 
-	ok run-bin($assixt, «
-		--force
-		dist
-	»), "assixt dist";
+	ok App::Assixt::Commands::Dist.run(
+		$module,
+		:$config,
+	), "Dist runs correctly";
 
-	my $output-dir = get-config(:no-user-config)<assixt><distdir>;
-
-	ok "$output-dir/Local-Test-Dist-0.0.0.tar.gz".IO.e, "Tarball exists";
+	ok "$config<assixt><distdir>/Local-Test-Dist-0.0.0.tar.gz".IO.e, "Tarball exists";
 };
 
 subtest "--output-dir overrides config-set output-dir", {
 	plan 2;
 
-	my Str $output-dir = "$root/output-alpha";
+	my IO::Path $output-dir = tempdir.IO;
 
-	ok run-bin($assixt, «
-		--force
-		dist
-		"--output-dir=\"$output-dir\""
-	»), "assixt dist --output-dir=$output-dir";
+	my Config $local-config = $config.clone.read: %(
+		runtime => %(
+			output-dir => $output-dir.absolute,
+		),
+	);
 
-	ok "$output-dir/Local-Test-Dist-0.0.0.tar.gz".IO.e, "Tarball exists";
+	ok App::Assixt::Commands::Dist.run(
+		$module,
+		config => $local-config,
+	), "assixt dist --output-dir=$output-dir";
+
+	ok $output-dir.add("Local-Test-Dist-0.0.0.tar.gz").e, "Tarball exists";
 };
 
 subtest "--output-dir set to a path with spaces", {
 	plan 2;
 
-	my Str $output-dir = "$root/output gamma";
+	my IO::Path $output-dir = tempdir.IO.add("o u t p u t");
 
-	ok run-bin($assixt, «
-		--force
-		dist
-		"--output-dir=\"$output-dir\""
-	»), "assixt dist";
+	my Config $local-config = $config.clone.read: %(
+		runtime => %(
+			output-dir => $output-dir.absolute,
+		),
+	);
+
+	ok App::Assixt::Commands::Dist.run(
+		$module,
+		config => $local-config,
+	), "assixt dist --output-dir='{$output-dir.absolute}'";
 
 	ok "$output-dir/Local-Test-Dist-0.0.0.tar.gz".IO.e, "Tarball exists";
 }
 
-subtest "Dist in other path can be created", {
-	plan 2;
-
-	my Str $output-dir = "$root/output-beta";
-
-	chdir $root;
-
-	ok run-bin($assixt, «
-		--force
-		dist
-		perl6-Local-Test-Dist
-		"--output-dir=\"$output-dir\""
-	»), "cpan dist Local-Test-Dir";
-
-	ok "$output-dir/Local-Test-Dist-0.0.0.tar.gz".IO.e, "Tarball exists";
-};
-
 subtest "Dist without a README", {
 	plan 1;
 
-	create-test-module($assixt, "Local::Test::Dist::Readme");
-	unlink "$root/perl6-Local-Test-Dist-Readme/README.pod6";
-
-	my Config $config = get-config(:no-user-config);
-
-	$config<runtime> = %(
-		output-dir => "/dev/null"
-	);
+	my IO::Path $module = create-test-module("Local::Test::Dist::Readme", tempdir.IO);
+	unlink $module.add("README.pod6");
 
 	stderr-like {
-		App::Assixt::Commands::Dist.run($root.IO.add("perl6-Local-Test-Dist-Readme"), :$config);
+		App::Assixt::Commands::Dist.run($module, :$config);
 	}, /"No usable README file found"/, "Missing README error is shown";
 }
 
 subtest "Dist with a README.pod6", {
 	plan 5;
 
-	my IO::Path $module = $root.IO.add("perl6-Local-Test-Dist-Readme-Pod6");
-	my IO::Path $output = $root.IO.add("output");
-	my Config $config = get-config(:!user-config);
-
-	$config.read: %(
-		runtime => %(
-			output-dir => $output.absolute,
-		),
-	);
-
-	create-test-module($assixt, "Local::Test::Dist::Readme::Pod6");
+	my IO::Path $module = create-test-module("Local::Test::Dist::Readme::Pod6", tempdir.IO);
 
 	nok $module.add("README.md").e, "README.md does not exist";
 	ok $module.add("README.pod6").e, "README.pod6 exists";
-	ok App::Assixt::Commands::Dist.run($module, :$config), "Dist gets created";
+
+	my IO::Path $dist = App::Assixt::Commands::Dist.run($module, :$config);
+
+	ok $dist.e, "Distribution was created";
+
 	output-like {
-		my Proc $tar = run « tar tf "{$output.add("Local-Test-Dist-Readme-Pod6-0.0.0.tar.gz").absolute}" », :out;
+		my Proc $tar = run « tar tf "{$dist.absolute}" », :out;
 
 		$tar.out(:close).slurp.say;
 	}, / ^^ "Local-Test-Dist-Readme-Pod6-0.0.0/README.md" $$ /, "Dist contains the README.md";
+
 	nok $module.add("README.md").e, "README.md is removed from main repo again";
+}
+
+subtest "Dist with missing source-url", {
+	plan 1;
+
+	my IO::Path $module = create-test-module("Local::Test::Dist::SourceUrl", tempdir.IO, %(
+		runtime => %(
+			source-url => "",
+		),
+	));
+
+	output-like {
+		App::Assixt::Commands::Dist.run($module, :$config);
+	}, / ^^ "The `source-url` is missing" /, "Missing source-url error is shown";
 }
 
 # vim: ft=perl6 noet

@@ -20,20 +20,37 @@ class App::Assixt::Commands::Dist
 			return;
 		}
 
-		die "'tar' is not available on this system" unless which("tar");
+		if (!which("tar")) {
+			note q:to/EOF/;
+				'tar' is not available on this system. Please use your operating system's
+				package manager to install it.
+				EOF
+
+			return;
+		}
 
 		my %meta = get-meta($path.absolute);
+
+		# Check for required META6.json elements
+		if (!%meta<source-url> && !$config<force>) {
+			note q:to/EOF/;
+				The `source-url` is missing. Either set it using
+				`assixt meta source-url <url>`, or use `--force` to ignore this error.
+				EOF
+
+			return;
+		}
 
 		my Str $fqdn = get-dist-fqdn(%meta);
 		my Str $basename = $*CWD.IO.basename;
 		my Str $transform = "s/^\./{$fqdn}/";
-		my Str $output = "{$config<runtime><output-dir> // $config<assixt><distdir>}/$fqdn.tar.gz";
+		my IO::Path $output = "{$config<runtime><output-dir> // $config<assixt><distdir>}/$fqdn.tar.gz".IO;
 
 		# Ensure output directory exists
-		mkdir $output.IO.parent;
+		mkdir $output.parent;
 
-		if ($output.IO.e && !$config<force>) {
-			note "Archive already exists: {$output}";
+		if ($output.e && !$config<force>) {
+			note "Archive already exists: {$output.absolute}";
 			return;
 		}
 
@@ -63,20 +80,20 @@ class App::Assixt::Commands::Dist
 		@tar-flags.push: "--exclude-vcs-ignores" if $tar-version ~~ $version-exclude-vcs-ignores;
 
 		if ($config<verbose>) {
-			say "tar czf {$output.perl} {@tar-flags} .";
+			say "tar czf {$output.absolute} {@tar-flags} .";
 		}
 
 		pushd($path);
-		run « tar czf "$output" {@tar-flags} .», :err;
+		run « tar czf "{$output.absolute}" {@tar-flags} .», :err;
 		popd;
 
 		# Remove the generated README, if any.
 		unlink $readme if $readme;
 
-		say "Created {$output}";
+		say "Created {$output.absolute}";
 
 		if ($config<verbose>) {
-			my $list = run « tar tf "$output" », :out;
+			my $list = run « tar tf "{$output.absolute}" », :out;
 
 			for $list.out.lines -> $line {
 				say "  {$line}";
