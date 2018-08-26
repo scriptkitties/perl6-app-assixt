@@ -8,7 +8,7 @@ use Dist::Helper::Template;
 
 unit class App::Assixt::Commands::Touch::Module;
 
-method run(
+method run (
 	Str:D $provide,
 	Config:D :$config,
 ) {

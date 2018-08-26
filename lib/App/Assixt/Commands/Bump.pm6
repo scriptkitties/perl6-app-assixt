@@ -7,95 +7,129 @@ use Config;
 use Dist::Helper::Meta;
 use Version::Semantic;
 
-my Str @bump-types = (
+my Str @bump-levels = (
 	"major",
 	"minor",
 	"patch",
 );
 
-# TODO: In case of major bump, also bump the api key in META6.json
+unit class App::Assixt::Commands::Bump;
 
-class App::Assixt::Commands::Bump
-{
-	multi method run(
-		Str:D $type,
-		Config:D :$config,
-	) {
-		die "Illegal bump type supplied: $type" unless @bump-types ∋ $type.lc;
+multi method run (
+	Str:D $level,
+	Config:D :$config,
+) {
+	if (@bump-levels ∌ $level.lc) {
+		note qq:to/EOF/;
+			Bump level '$level' not recognized. Read the documentation on
+			App::Assixt::Commands::Bump for a list of available bump level.
+			EOF
 
-		my %meta = get-meta;
-		my Str $version-string = %meta<version>;
-
-		# Set a starting semantic version number to work with
-		$version-string = "0.0.0" if $version-string eq "*";
-
-		my Version::Semantic $version .= new(%meta<version>);
-
-		given $type.lc {
-			when "major" { $version.bump-major }
-			when "minor" { $version.bump-minor }
-			when "patch" { $version.bump-patch }
-		}
-
-		%meta<version> = ~$version;
-		%meta<api> = ~$version.parts[0];
-
-		put-meta(:%meta);
-
-		# Bump other files
-		self!bump-provides($config, ~$version, %meta<provides>.values);
-		self!bump-changelog($config, ~$version);
-
-		say "{%meta<name>} bumped to to {%meta<version>}";
+		return;
 	}
 
-	multi method run(
-		Config:D :$config,
-	) {
-		my Int $default-bump = 3;
+	my %meta = get-meta($config<cwd>);
+	my Str $version-string = %meta<version>;
 
-		# Output the possible bump types
-		say "Bump parts";
+	# Set a starting semantic version number to work with
+	$version-string = "0.0.0" if $version-string eq "*";
 
-		for @bump-types.kv -> $i,  $type {
-			say "  {$i + 1} - $type";
-		};
+	my Version::Semantic $version .= new(%meta<version>);
 
-		# Request user input to select the bump type
-		my Int $bump;
-
-		loop {
-			my $input = ask("Bump part", ~$default-bump.tc);
-
-			$bump = $input.Int if $input ~~ /^$ | ^\d+$/;
-			$bump = $default-bump if $bump == 0;
-
-			$bump--;
-
-			last if $bump < @bump-types.elems;
-		}
-
-		self.run(@bump-types[$bump], :$config);
+	given $level.lc {
+		when "major" { $version.bump-major }
+		when "minor" { $version.bump-minor }
+		when "patch" { $version.bump-patch }
 	}
 
-	#| Bump the changelog.
-	method !bump-changelog (
-		Config:D $config,
-		Str:D $version,
-	) {
-		return if $config<runtime><no-bump-changelog>;
+	%meta<version> = ~$version;
+	%meta<api> = ~$version.parts[0];
 
-		my IO::Path $changelog = "CHANGELOG.md".IO;
+	put-meta(%meta, $config<cwd>);
 
-		return unless $changelog.e && $changelog.f;
+	# Bump other files
+	self!bump-provides($config, ~$version, %meta<provides>.values);
+	self!bump-changelog($config, ~$version);
 
+	say "{%meta<name>} bumped to to {%meta<version>}";
+
+	%meta<version>;
+}
+
+multi method run (
+	Config:D :$config,
+) {
+	my Int $default-level = 3;
+
+	# Output the possible bump level
+	say "Bump levels";
+
+	for @bump-levels.kv -> $i,  $level {
+		say "  {$i + 1} - $level";
+	};
+
+	# Request user input to select the bump level
+	my Int $level;
+
+	loop {
+		my $input = ask("Bump part", ~$default-level.tc);
+
+		$level = $input.Int if $input ~~ /^$ | ^\d+$/;
+		$level = $default-level if $level == 0;
+
+		$level--;
+
+		last if $level < @bump-levels.elems;
+	}
+
+	self.run(@bump-levels[$level], :$config);
+}
+
+#| Bump the changelog.
+method !bump-changelog (
+	Config:D $config,
+	Str:D $version,
+) {
+	return if $config<runtime><no-bump-changelog>;
+
+	my IO::Path $changelog = $config<cwd>.add("CHANGELOG.md");
+
+	return unless $changelog.e && $changelog.f;
+
+	my Str $updated-file = "";
+	my Str $datestamp = Date.new(now).yyyy-mm-dd;
+
+	for $changelog.lines -> $line {
+		given $line {
+			when / ^ ( "#"+ \h+ ) "[UNRELEASED]" / {
+				$updated-file ~= "{$0}[$version] - $datestamp\n";
+			}
+			default {
+				$updated-file ~= "$line\n";
+			}
+		}
+	}
+
+	$changelog.spurt($updated-file);
+}
+
+#| Bump the =VERSION blocks in pod sections found in files declared in
+#| META6.json's "provides" key.
+method !bump-provides (
+	Config:D $config,
+	Str:D $version,
+	*@files,
+) {
+	return if $config<runtime><no-bump-provides>;
+
+	for @files -> $relative-file {
+		my IO::Path $file = $config<cwd>.add($relative-file);
 		my Str $updated-file = "";
-		my Str $datestamp = Date.new(now).yyyy-mm-dd;
 
-		for $changelog.lines -> $line {
+		for $file.lines -> $line {
 			given $line {
-				when / ^ ( "#"+ \h+ ) "[UNRELEASED]" / {
-					$updated-file ~= "{$0}[$version] - $datestamp\n";
+				when / ^ ( \h* "=VERSION" \s+ ) \S+ (.*)/ {
+					$updated-file ~= "{$0}{$version}{$1}\n";
 				}
 				default {
 					$updated-file ~= "$line\n";
@@ -103,34 +137,7 @@ class App::Assixt::Commands::Bump
 			}
 		}
 
-		$changelog.spurt($updated-file);
-	}
-
-	#| Bump the =VERSION blocks in pod sections found in files declared in
-	#| META6.json's "provides" key.
-	method !bump-provides (
-		Config:D $config,
-		Str:D $version,
-		*@files,
-	) {
-		return if $config<runtime><no-bump-provides>;
-
-		for @files -> $file {
-			my Str $updated-file = "";
-
-			for $file.IO.lines -> $line {
-				given $line {
-					when / ^ ( \h* "=VERSION" \s+ ) \S+ (.*)/ {
-						$updated-file ~= "{$0}{$version}{$1}\n";
-					}
-					default {
-						$updated-file ~= "$line\n";
-					}
-				}
-			}
-
-			spurt($file, $updated-file);
-		}
+		spurt($file, $updated-file);
 	}
 }
 
@@ -142,7 +149,25 @@ class App::Assixt::Commands::Bump
 
 =head1 Synopsis
 
-assixt bump <major|minor|patch>
+assixt bump <level>
+
+=head2 Levels
+
+=defn major
+The major level is the first part of the version string. This should be bumped
+in case a change is introduced which is not backwards compatible.
+
+=defn minor
+The minor level is the second part of the version string. This should be bumped
+in case a change is introduced which is backwards compatible. This is almost
+always the case when you introduce a new feature into your module.
+
+=defn patch
+The patch level is the third part of the version string. This should be bumped
+in case a change is introduced which fixes a bug, or otherwise improves the
+module without altering the functionality it exposes. If the user gains no new
+features, and does not have to alter their code for a change in your module,
+you most likely want to bump this part.
 
 =head1 Description
 

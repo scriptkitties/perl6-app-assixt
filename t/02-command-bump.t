@@ -6,7 +6,7 @@ use Test;
 
 BEGIN plan :skip-all<set AUTHOR_TESTING=1 to run bin tests> unless %*ENV<AUTHOR_TESTING>;
 
-use App::Assixt::Commands::New;
+use App::Assixt::Commands::Bump;
 use App::Assixt::Commands::Touch::Bin;
 use App::Assixt::Commands::Touch::Class;
 use App::Assixt::Config;
@@ -15,31 +15,31 @@ use Config;
 use Dist::Helper::Meta;
 use File::Temp;
 
-plan 5;
+plan 4;
 
-my $assixt = $*CWD;
-my $root = tempdir;
+my IO::Path $module = create-test-module("Local::Test::Bump", tempdir.IO);
+my Config $config = get-config(:!user-config).read: %(
+	cwd => $module,
+	:force,
+);
 
-chdir $root;
-
-ok create-test-module($assixt, "Local::Test::Bump"), "assixt new Local::Test::Bump";
-
-chdir "$root/perl6-Local-Test-Bump";
-App::Assixt::Commands::Touch::Bin.run("bin", "test-bin", config => get-config());
-App::Assixt::Commands::Touch::Class.run("class", "Local::Test::Bump::Test::Class", config => get-config());
+App::Assixt::Commands::Touch::Bin.run("test-bin", :$config);
+App::Assixt::Commands::Touch::Class.run("Local::Test::Bump::Test::Class", :$config);
 
 subtest "Bump patch version", {
-	plan 7;
+	plan 6;
 
-	is get-meta()<version>, "0.0.0", "Version is now at 0.0.0";
-	is get-meta()<api>, "0", "API is now at 0";
-	ok run-bin($assixt, « bump patch --force »), "Bump patch level";
-	is get-meta()<version>, "0.0.1", "Version is now at 0.0.1";
-	is get-meta()<api>, "0", "API is still at 0";
+	is get-meta($module)<version>, "0.0.0", "Version is now at 0.0.0";
+	is get-meta($module)<api>, "0", "API is now at 0";
+
+	App::Assixt::Commands::Bump.run("patch", :$config);
+
+	is get-meta($module)<version>, "0.0.1", "Version is now at 0.0.1";
+	is get-meta($module)<api>, "0", "API is still at 0";
 
 	# This entails 2 additional tests
-	for get-meta()<provides>.values -> $file {
-		for $file.IO.lines -> $line {
+	for get-meta($module)<provides>.values -> $file {
+		for $module.add($file).lines -> $line {
 			next unless $line ~~ / \h* "=VERSION" \s+ (\S+) \s* /;
 
 			is $0, "0.0.1", "Version in $file is now at 0.0.1";
@@ -48,17 +48,19 @@ subtest "Bump patch version", {
 };
 
 subtest "Bump minor version", {
-	plan 7;
+	plan 6;
 
-	is get-meta()<version>, "0.0.1", "Version is now at 0.0.1";
-	is get-meta()<api>, "0", "API is now at 0";
-	ok run-bin($assixt, « bump minor --force »), "Bump minor level";
-	is get-meta()<version>, "0.1.0", "Version is now at 0.1.0";
-	is get-meta()<api>, "0", "API is still at 0";
+	is get-meta($module)<version>, "0.0.1", "Version is now at 0.0.1";
+	is get-meta($module)<api>, "0", "API is now at 0";
+
+	App::Assixt::Commands::Bump.run("minor", :$config);
+
+	is get-meta($module)<version>, "0.1.0", "Version is now at 0.1.0";
+	is get-meta($module)<api>, "0", "API is still at 0";
 
 	# This entails 2 additional tests
-	for get-meta()<provides>.values -> $file {
-		for $file.IO.lines -> $line {
+	for get-meta($module)<provides>.values -> $file {
+		for $module.add($file).lines -> $line {
 			next unless $line ~~ / \h* "=VERSION" \s+ (\S+) \s* /;
 
 			is $0, "0.1.0", "Version in $file is now at 0.1.0";
@@ -67,17 +69,19 @@ subtest "Bump minor version", {
 };
 
 subtest "Bump major version", {
-	plan 7;
+	plan 6;
 
-	is get-meta()<version>, "0.1.0", "Version is now at 0.1.0";
-	is get-meta()<api>, "0", "API is now at 0";
-	ok run-bin($assixt, « bump major --force »), "Bump major level";
-	is get-meta()<version>, "1.0.0", "Version is now at 1.0.0";
-	is get-meta()<api>, "1", "API is now at 1";
+	is get-meta($module)<version>, "0.1.0", "Version is now at 0.1.0";
+	is get-meta($module)<api>, "0", "API is now at 0";
+
+	App::Assixt::Commands::Bump.run("major", :$config);
+
+	is get-meta($module)<version>, "1.0.0", "Version is now at 1.0.0";
+	is get-meta($module)<api>, "1", "API is now at 1";
 
 	# This entails 2 additional tests
-	for get-meta()<provides>.values -> $file {
-		for $file.IO.lines -> $line {
+	for get-meta($module)<provides>.values -> $file {
+		for $module.add($file).lines -> $line {
 			next unless $line ~~ / \h* "=VERSION" \s+ (\S+) \s* /;
 
 			is $0, "1.0.0", "Version in $file is now at 1.0.0";
@@ -88,30 +92,16 @@ subtest "Bump major version", {
 subtest "Bump CHANGELOG versions", {
 	plan 3;
 
-	my Config $config = get-config;
 	my Str $datestamp = Date.new(now).yyyy-mm-dd;
-
-	$config.read: %(
-		force => False,
-		runtime => %(
-			author => "Patrick Spek",
-			email => "p.spek@tyil.work",
-			perl => "c",
-			description => "Nondescript",
-			license => "AGPL-3.0",
-		),
-	);
+	my Config $config = get-config(:!user-config);
 
 	subtest "Patch bump", {
 		plan 2;
 
-		$config<runtime><name> = "Local::Test::Bump::Patch";
-		chdir $root;
-		App::Assixt::Commands::New.run(:$config);
-		chdir "$root/perl6-Local-Test-Bump-Patch";
-		run-bin($assixt, « bump patch --force »);
+		$config<cwd> = create-test-module("Local::Test::Bump::Patch", tempdir.IO);
+		App::Assixt::Commands::Bump.run("patch", :$config);
 
-		for "CHANGELOG.md".IO.lines -> $line {
+		for $config<cwd>.add("CHANGELOG.md").lines -> $line {
 			next unless $line ~~ / ^ "## [" ( \S+ ) "] - " ( \S+ ) /;
 
 			is $0, "0.0.1", "Version in CHANGELOG.md is now at 0.0.1";
@@ -122,13 +112,10 @@ subtest "Bump CHANGELOG versions", {
 	subtest "Minor bump", {
 		plan 2;
 
-		$config<runtime><name> = "Local::Test::Bump::Minor";
-		chdir $root;
-		App::Assixt::Commands::New.run(:$config);
-		chdir "$root/perl6-Local-Test-Bump-Minor";
-		run-bin($assixt, « bump minor --force »);
+		$config<cwd> = create-test-module("Local::Test::Bump::Minor", tempdir.IO);
+		App::Assixt::Commands::Bump.run("minor", :$config);
 
-		for "CHANGELOG.md".IO.lines -> $line {
+		for $config<cwd>.add("CHANGELOG.md").lines -> $line {
 			next unless $line ~~ / ^ "## [" ( \S+ ) "] - " ( \S+ ) /;
 
 			is $0, "0.1.0", "Version in CHANGELOG.md is now at 0.1.0";
@@ -139,13 +126,10 @@ subtest "Bump CHANGELOG versions", {
 	subtest "Major bump", {
 		plan 2;
 
-		$config<runtime><name> = "Local::Test::Bump::Major";
-		chdir $root;
-		App::Assixt::Commands::New.run(:$config);
-		chdir "$root/perl6-Local-Test-Bump-Major";
-		run-bin($assixt, « bump major --force »);
+		$config<cwd> = create-test-module("Local::Test::Bump::Major", tempdir.IO);
+		App::Assixt::Commands::Bump.run("major", :$config);
 
-		for "CHANGELOG.md".IO.lines -> $line {
+		for $config<cwd>.add("CHANGELOG.md").lines -> $line {
 			next unless $line ~~ / ^ "## [" ( \S+ ) "] - " ( \S+ ) /;
 
 			is $0, "1.0.0", "Version in CHANGELOG.md is now at 1.0.0";
