@@ -6,37 +6,41 @@ use Test;
 
 BEGIN plan :skip-all<set AUTHOR_TESTING=1 to run bin tests> unless %*ENV<AUTHOR_TESTING>;
 
+use App::Assixt::Config;
 use App::Assixt::Test;
+use App::Assixt::Commands::Touch::Meta;
+use Config;
 use Dist::Helper::Meta;
 use File::Temp;
 
-my $assixt = $*CWD;
-my $root = tempdir;
+plan 2;
 
-chdir $root;
-
-plan 3;
-
-ok create-test-module($assixt, "Local::Test::Touch::Meta"), "assixt new Local::Test::Touch::Meta";
-chdir "$root/perl6-Local-Test-Touch-Meta";
-
-# Remove some default files, as this test is going to re-create them with the meta command.
-unlink ".gitlab-ci.yml";
+my IO::Path $module = create-test-module("Local::Test::Touch::Meta", tempdir.IO);
+my Config $config = get-config.read: %(
+	cwd => $module,
+);
 
 subtest "Create clean README", {
 	plan 2;
 
-	unlink "README.pod6"; # Remove default README.pod6
+	unlink $module.add("README.pod6"); # Remove default README.pod6
 
-	ok run-bin($assixt, « touch meta readme »), "assixt touch meta readme";
-	ok "README.pod6".IO.e && "README.pod6".IO.f, "README.pod6 created";
+	nok $module.add("README.pod6").e, "README.pod6 does not exist";
+
+	App::Assixt::Commands::Touch::Meta.run("readme", :$config);
+
+	ok $module.add("README.pod6").f, "README.pod6 created";
 }
 
-subtest "Create clean gitlab-ci configuration", {
+subtest "Recreate clean gitlab-ci configuration", {
 	plan 2;
 
-	ok run-bin($assixt, « touch meta gitlab »), "assixt touch meta gitlab";
-	ok ".gitlab-ci.yml".IO.e && ".gitlab-ci.yml".IO.f, ".gitlab-ci.yml created";
+	my IO::Path $file = App::Assixt::Commands::Touch::Meta.run("gitlab-ci", config => $config.clone.read: %(
+		:force,
+	));
+
+	ok $file, "Command ran correctly";
+	ok $module.add(".gitlab-ci.yml").f, ".gitlab-ci.yml created";
 }
 
 # vim: ft=perl6 noet
