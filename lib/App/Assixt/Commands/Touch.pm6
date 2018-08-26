@@ -4,27 +4,30 @@ use v6.c;
 
 use Config;
 
-class App::Assixt::Commands::Touch
+class App::Assixt::Commands::Touch;
+
+method run(*@args, Config:D :$config)
 {
-	method run(*@args, Config:D :$config)
-	{
-		my $type = @args.head.tclc;
-		my $lib = "App::Assixt::Commands::Touch::$type";
+	my $type = @args.shift;
+	my $formatted-type = $type.split("-", :g)».tclc.join();
+	my $lib = "App::Assixt::Commands::Meta::$formatted-type";
 
-		try require ::($lib);
+	note "Using $lib to handle $type" if $config<verbose>;
 
-		if (::($lib) ~~ Failure) {
-			note "No idea how to touch a $type";
+	try require ::($lib);
 
-			if ($config<verbose>) {
-				note ::($lib).Str;
-			}
+	if (::($lib) ~~ Failure) {
+		note q:to/EOF/;
+			Unknown type '$type'. Read the documentation on App::Assixt::Commands::Touch
+			for a list of available types.
+			EOF
 
-			exit 2;
-		}
+		note ::($lib).Str if $config<verbose>;
 
-		::($lib).run(|@args, :$config);
+		exit 2;
 	}
+
+	::($lib).run(|@args, :$config);
 }
 
 =begin pod
@@ -36,6 +39,38 @@ class App::Assixt::Commands::Touch
 =head1 Synopsis
 
 assixt touch <type>
+
+=head2 Types
+
+=defn bin
+Create a new runnable Perl 6 program. The filename will not contain an
+extension, and the file itself will be stored in the C<bin> directory of your
+module. Upon installation of your module, this file will become available in
+the user's C<$PATH>.
+
+=defn class
+Create an empty class in the C<lib> directory.
+
+=defn lib
+Create an empty file in the C<lib> directory. This will not contain the
+structure for a module, class or other regularly used constructs. Most often,
+you will want to use a more specific type, such as C<bin>, C<class> or
+C<module>.
+
+=defn meta
+Create a meta-module file. These are files that oftentimes do not contain any
+Perl 6 code, but instead contain meta information. For more information about
+the available meta files, read the documentation on
+C<App::Assixt::Commands::Touch::Meta>.
+
+=defn module
+Create an empty module in the C<lib> directory.
+
+=defn resource
+Create an empty resource file in C<resources>.
+
+=defn test
+Create an empty test file in C<t>.
 
 =head1 Description
 

@@ -6,19 +6,16 @@ use Test;
 
 BEGIN plan :skip-all<set AUTHOR_TESTING=1 to run bin tests> unless %*ENV<AUTHOR_TESTING>;
 
+use App::Assixt::Commands::Touch::Bin;
+use App::Assixt::Config;
 use App::Assixt::Test;
+use Config;
 use Dist::Helper::Meta;
 use File::Temp;
 
-my $assixt = $*CWD;
-my $root = tempdir;
+plan 1;
 
-chdir $root;
-
-plan 2;
-
-ok create-test-module($assixt, "Local::Test::Touch::Bin"), "assixt new Local::Test::Touch::Bin";
-chdir "$root/perl6-Local-Test-Touch-Bin";
+my IO::Path $module = create-test-module("Local::Test::Touch::Bin", tempdir.IO);
 
 subtest "Touch bin files", {
 	my @tests = <
@@ -26,22 +23,18 @@ subtest "Touch bin files", {
 		second-bin
 	>;
 
-	my $module-dir = "$root/perl6-Local-Test-Touch-Bin";
-
 	plan 4 × @tests.elems;
 
 	for @tests -> $test {
-		chdir $module-dir;
+		ok $module.&get-meta()<provides>{$test}:!exists, "META6.json does not contain $test yet";
 
-		ok get-meta()<provides>{$test}:!exists, "META6.json does not contain $test yet";
-		ok run-bin($assixt, « touch bin $test »), "assixt touch bin $test";
+		my IO::Path $file = App::Assixt::Commands::Touch::Bin.run($test, config => get-config().read: %(
+			cwd => $module,
+		));
 
-		chdir $module-dir;
-
-		my %new-meta = get-meta;
-
-		ok %new-meta<provides>{$test}:exists, "$test exists in META6.json<provides>";
-		ok %new-meta<provides>{$test}.IO.e, "{%new-meta<provides>{$test}} exists";
+		ok $module.&get-meta()<provides>{$test}:exists, "$test exists in META6.json<provides>";
+		is $module.&get-meta()<provides>{$test}, $file.relative($module), "$test provides the correct path";
+		ok $module.add($module.&get-meta()<provides>{$test}).e, "$file.basename() exists";
 	}
 }
 
