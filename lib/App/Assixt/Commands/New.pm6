@@ -49,7 +49,7 @@ multi method run (
 	$config<runtime><perl> //= ask("Perl 6 version", $config.get("new-module.perl"));
 	$config<runtime><description> //= ask("Module description", "Nondescript");
 	$config<runtime><license> //= ask("License key", $config.get("new-module.license"));
-	$config<runtime><source-url> //= ask("Source URL (optional)", "");
+	$config<runtime><source-url> //= ask("Source URL (optional)", :empty);
 
 	# Create the initial %meta
 	my %meta = merge-hash(new-meta, %(
