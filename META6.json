@@ -11,6 +11,7 @@
     "Hash::Merge",
     "IO::Path::Dirstack:ver<0.1.1+>",
     "Pod::To::Markdown",
+    "Pod::To::Pager",
     "Terminal::Getpass:ver<0.0.5+>",
     "Version::Semantic:ver<0.1.0+>",
     "zef"
@@ -38,9 +39,9 @@
     "App::Assixt::Commands::Touch::Class": "lib/App/Assixt/Commands/Touch/Class.pm6",
     "App::Assixt::Commands::Touch::Lib": "lib/App/Assixt/Commands/Touch/Lib.pm6",
     "App::Assixt::Commands::Touch::Meta": "lib/App/Assixt/Commands/Touch/Meta.pm6",
+    "App::Assixt::Commands::Touch::Module": "lib/App/Assixt/Commands/Touch/Module.pm6",
     "App::Assixt::Commands::Touch::Resource": "lib/App/Assixt/Commands/Touch/Resource.pm6",
     "App::Assixt::Commands::Touch::Test": "lib/App/Assixt/Commands/Touch/Test.pm6",
-    "App::Assixt::Commands::Touch::Module": "lib/App/Assixt/Commands/Touch/Module.pm6",
     "App::Assixt::Commands::Undepend": "lib/App/Assixt/Commands/Undepend.pm6",
     "App::Assixt::Commands::Upload": "lib/App/Assixt/Commands/Upload.pm6",
     "App::Assixt::Config": "lib/App/Assixt/Config.pm6",
@@ -49,6 +50,7 @@
     "assixt": "bin/assixt"
   },
   "resources": [
+    
   ],
   "source-url": "https://gitlab.com/tyil/perl6-app-assixt.git",
   "tags": [

@@ -32,13 +32,19 @@ use App::Assixt::Main;
 
 =head2 Options
 
+To disable an option, specify it with a C</> between the C<--> and the name of
+the option. For example, to enable the C<verbose> option and disable the
+C<user-config> option:
+
+    assixt --verbose --/user-config
+
 =defn --help
 Show help output.
 
 =defn --config-file=<file>
 Use the configuration specified in C<file>.
 
-=defn --force
+=defn --[/]force
 Try to continue, no matter what. This will skip every confirmation dialogue, and
 assume you want to proceed with everything.
 
@@ -46,7 +52,7 @@ assume you want to proceed with everything.
 Set whether to load the user's configuration overrides. Disable during testing
 or debugging.
 
-=defn --verbose
+=defn --[/]verbose
 Add additional output. Useful for testing or debugging.
 
 =head1 Description

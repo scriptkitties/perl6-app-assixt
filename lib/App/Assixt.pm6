@@ -16,6 +16,12 @@ C<App::Assixt> is a Perl 6 module to assist module developers in their efforts
 to create new modules. It provides a number of helpful tools to achieve this,
 through the C<assixt> program bundled in the module.
 
+All other modules being referred to can be read using C<p6man>. For example, to
+read more about the C<bump> command, you can read the documentation for it at
+C<App::Assixt::Commands::Bump>, which you can open ith C<p6man>:
+
+    p6man App::Assixt::Commands::Bump
+
 =head1 Subcommands
 
 C<assixt> allows for a number of subcommands, which all come with their own

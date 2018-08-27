@@ -9,8 +9,8 @@ unit module App::Assixt::Main;
 
 #| An extensive toolkit for module developers.
 multi sub MAIN (
-	#| The command to run. Read App::Assixt for a list of available commands
-	#| and their descriptions.
+	#| The command to run. Run `p6man App::Assixt` for more extensive
+	#| documentation, including a list of available commands.
 	Str:D $command,
 
 	#| Additional arguments to the command you're running.
@@ -56,7 +56,7 @@ multi sub MAIN (
 			Unrecognized command '$command'. You can get a quick synopsis of
 			assixt by running it with `--help`. You can find a list of possible
 			commands with a small description in the documentation for
-			App::Assixt.
+			App::Assixt, which you can read with `p6man App::Assixt`.
 			EOF
 
 		note ::($lib).Str if $config<verbose>;
