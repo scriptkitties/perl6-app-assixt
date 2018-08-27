@@ -24,7 +24,6 @@
     "App::Assixt": "lib/App/Assixt.pm6",
     "App::Assixt::Commands::Bootstrap": "lib/App/Assixt/Commands/Bootstrap.pm6",
     "App::Assixt::Commands::Bootstrap::Config": "lib/App/Assixt/Commands/Bootstrap/Config.pm6",
-    "App::Assixt::Commands::Bootstrap::Man": "lib/App/Assixt/Commands/Bootstrap/Man.pm6",
     "App::Assixt::Commands::Bump": "lib/App/Assixt/Commands/Bump.pm6",
     "App::Assixt::Commands::Clean": "lib/App/Assixt/Commands/Clean.pm6",
     "App::Assixt::Commands::Depend": "lib/App/Assixt/Commands/Depend.pm6",
