@@ -10,7 +10,7 @@ method run(*@args, Config:D :$config)
 {
 	my $type = @args.shift;
 	my $formatted-type = $type.split("-", :g)».tclc.join();
-	my $lib = "App::Assixt::Commands::Meta::$formatted-type";
+	my $lib = "App::Assixt::Commands::Touch::$formatted-type";
 
 	note "Using $lib to handle $type" if $config<verbose>;
 
