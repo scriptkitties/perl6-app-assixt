@@ -17,6 +17,10 @@ Versioning](http://semver.org/spec/v2.0.0.html).
   the `META6.json`.
 - `new` can now get it's name argument as first positional argument, i.e.:
   `assixt new Foo::Bar`.
+- Documentation has been added to the module's pod contents. `p6man` is now
+  also pulled in through a dependency on `Pod::To::Pager`, which is the
+  recommended method to access the documentation. Take a look: `p6man
+  App::Assixt`!
 
 ### Changed
 - The `.gitlab-ci.yml` generated during `new` should now have the correct names
