@@ -64,9 +64,16 @@ multi sub MAIN (
 		exit 2;
 	}
 
-	::($lib).run(|@args, :$config);
+	my $return = ::($lib).run(|@args, :$config);
 
-	True;
+	# Return the integer as exitcode if one is given.
+	exit $return if $return ~~ Int:D;
+
+	# A valid, non-empty string indicates success.
+	exit 0 if $return ~~ Str:D && $return;
+
+	# No valid return value, exit with non-zero.
+	exit 1;
 }
 
 sub parse-args(
