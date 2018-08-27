@@ -16,14 +16,21 @@ class App::Assixt::Commands::Dist
 		Config:D :$config,
 	) {
 		if (!$path.add("./META6.json").IO.e) {
-			note "No META6.json in {$path.absolute}";
+			note qq:to/EOF/;
+				No META6.json in {$path.absolute}. Are you sure you're in a
+				Perl 6 module directory? You can also specify a path to a Perl
+				6 module directory as an argument to make a distribution of
+				that module.
+
+				EOF
+
 			return;
 		}
 
 		if (!which("tar")) {
 			note q:to/EOF/;
-				'tar' is not available on this system. Please use your operating system's
-				package manager to install it.
+				'tar' is not available on this system. Please use your
+				operating system's package manager to install it.
 				EOF
 
 			return;
@@ -50,7 +57,12 @@ class App::Assixt::Commands::Dist
 		mkdir $output.parent;
 
 		if ($output.e && !$config<force>) {
-			note "Archive already exists: {$output.absolute}";
+			note qq:to/EOF/;
+				A distribution tarball already exists at {$output.absolute}.
+				Remove this file or run this command again with `--force` to
+				ignore this error.
+				EOF
+
 			return;
 		}
 
@@ -58,7 +70,11 @@ class App::Assixt::Commands::Dist
 
 		# Ensure there's a viable README file
 		if (!self.ensure-readme($path, :$config) && !$config<force>) {
-			note "No usable README file found! Add a README.pod6 using `assixt touch meta readme.pod6`, or use --force to skip this check.";
+			note q:to/EOF/;
+				No usable README file found! Add a README.pod6 using `assixt
+				touch meta readme.pod6`, or use --force to skip this check.
+				EOF
+
 			return;
 		}
 
@@ -168,7 +184,11 @@ class App::Assixt::Commands::Dist
 			$exit-code = $converter.exitcode while $exit-code < 0;
 
 			if ($exit-code) {
-				note "You need Pod::To::Markdown to use Pod 6 documents as README. You can install this with zef: `zef install Pod::To::Markdown`.";
+				note q:to/EOF/;
+					You need Pod::To::Markdown to use Pod 6 documents as
+					README. You can install this with zef: `zef install
+					Pod::To::Markdown`.
+					EOF
 
 				if ($config<verbose>) {
 					$converter.err.slurp.note;

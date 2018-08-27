@@ -19,8 +19,12 @@ method run(
 	my IO::Path $path = $resources.add($resource);
 
 	# Check for duplicate entry
-	if (%meta<resources> ∋ $path.relative($resources)) {
-		note "A $resource already exists in {%meta<name>}";
+	if (%meta<resources> ∋ $path.relative($resources) && !$config<force>) {
+		note qq:to/EOF/;
+			A file already exists at {$path.absolute}. Remove the file, or run
+			this command again with `--force` to ignore the error.
+			EOF
+
 		return;
 	}
 

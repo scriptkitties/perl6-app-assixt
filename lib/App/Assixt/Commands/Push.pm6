@@ -25,6 +25,7 @@ class App::Assixt::Commands::Push
 
 		if (!$dist) {
 			note "Failed to create distribution tarball.";
+
 			return;
 		}
 

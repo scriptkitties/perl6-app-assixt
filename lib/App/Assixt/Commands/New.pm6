@@ -33,7 +33,12 @@ multi method run (
 
 		# Make sure it isn't already taken on the local system
 		if ($dir.e) {
-			note "{~$dir} is not empty! Use a different module name or remove the directory first.";
+			note qq:to/EOF/;
+				The target directory '{$dir.absolute}' is not empty. Please
+				remove the file or directory at this path or use `--force` to
+				ignore this error. Alternatively, specify a different name to
+				use for the module.
+				EOF
 
 			$config<runtime><name> = ask("Module name", $config<runtime><name>);
 
