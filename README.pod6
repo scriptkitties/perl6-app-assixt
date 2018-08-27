@@ -13,6 +13,28 @@ use C<zef> to get it installed on your machine:
 
     zef install App::Assixt
 
+=head3 Installing the latest C<master> commit
+
+If you're feeling experimental, you can help out by running the latest
+I<passing> C<master> commit. This release may contain more bugs than the stable
+release available from CPAN. However, these releases are also all candidates
+for becoming a stable release, and can therefore do very well with some
+in-the-field testing.
+
+You can download the latest C<master> release from L<the GitLab
+repository|https://gitlab.com/tyil/perl6-app-assixt>, unpack it and install it
+with C<zef>:
+
+    cd "$(mktemp -d)"
+    curl -L -o assixt.zip https://gitlab.com/tyil/perl6-app-assixt/-/jobs/artifacts/master/download?job=App%3A%3AAssixt
+    unzip assixt.zip
+    zef install --force-install .
+
+If all went well, you can now use C<assixt> as you normally would.
+
+If you encounter any bugs or have any feedback of some kind, do not hesitate to
+L<submit an issue|https://gitlab.com/tyil/perl6-app-assixt/issues>!
+
 =head2 Basic usage
 
 The most basic commands you will want to use are C<new>, C<touch>, and C<push>.
