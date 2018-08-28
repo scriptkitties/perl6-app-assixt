@@ -5,47 +5,48 @@ use v6.c;
 use Config;
 use Dist::Helper::Meta;
 
-class App::Assixt::Commands::Depend
-{
-	multi method run(
-		Str:D $module,
-		Config:D :$config!,
-	) {
-		# Get the meta info
-		my %meta = get-meta($config<cwd>);
+unit class App::Assixt::Commands::Depend
 
-		# Install the new dependency with zef
-		unless ($config<runtime><no-install>) {
-			my $zef = run « zef --cpan install "$module" »;
+multi method run(
+	Str:D $module,
+	Config:D :$config!,
+) {
+	# Get the meta info
+	my %meta = get-meta($config<cwd>);
 
-			if (0 < $zef.exitcode) {
-				note qq:to/EOF/;
-					Failed to install $module with Zef, not adding the
-					dependency. You can skip the local installation and just
-					add the dependency to your module by adding `--no-install`
-					to the command.
-					EOF
-			}
+	# Install the new dependency with zef
+	unless ($config<runtime><no-install>) {
+		my $zef = run « zef --cpan install "$module" »;
+
+		if (0 < $zef.exitcode) {
+			note qq:to/EOF/;
+				Failed to install $module with Zef, not adding the
+				dependency. You can skip the local installation and just
+				add the dependency to your module by adding `--no-install`
+				to the command.
+				EOF
+
+			return;
 		}
-
-		# Add the new dependency if its not listed yet
-		if (%meta<depends> ∌ $module) {
-			%meta<depends>.push: $module;
-		}
-
-		# Write the new META6.json
-		put-meta(%meta, $config<cwd>);
-
-		# And finish off with some user friendly feedback
-		say "$module has been added as a dependency to {%meta<name>}";
 	}
 
-	multi method run(
-		*@modules,
-		Config:D :$config!,
-	) {
-		samewith($_, :$config) for @modules;
+	# Add the new dependency if its not listed yet
+	if (%meta<depends> ∌ $module) {
+		%meta<depends>.push: $module;
 	}
+
+	# Write the new META6.json
+	put-meta(%meta, $config<cwd>);
+
+	# And finish off with some user friendly feedback
+	say "$module has been added as a dependency to {%meta<name>}";
+}
+
+multi method run(
+	*@modules,
+	Config:D :$config!,
+) {
+	samewith($_, :$config) for @modules;
 }
 
 =begin pod
