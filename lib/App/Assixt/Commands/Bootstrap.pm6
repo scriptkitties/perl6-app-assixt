@@ -2,6 +2,7 @@
 
 use v6.c;
 
+use App::Assixt::Output;
 use Config;
 
 unit class App::Assixt::Commands::Bootstrap;
@@ -12,17 +13,14 @@ method run(
 ) {
 	my $type = @args.shift;
 	my $formatted-type = $type.split("-", :g)».tclc.join();
-	my $lib = "App::Assixt::Commands::Bootstrap::$formatted-type";
+	my $lib = "{$?CLASS.^name}::$formatted-type";
 
-	note "Using $lib to handle $type" if $config<verbose>;
+	err("debug.require", module => $lib, intent => $type) if $config<verbose>;
 
 	try require ::($lib);
 
 	if (::($lib) ~~ Failure) {
-		note qq:to/EOF/;
-			Unknown type '$type'. Read the documentation on
-			App::Assixt::Commands::Bootstrap for a list of available types.
-			EOF
+		err("error.subcommand", command => $type, docs => $?CLASS.^name);
 
 		note ::($lib).Str if $config<verbose>;
 

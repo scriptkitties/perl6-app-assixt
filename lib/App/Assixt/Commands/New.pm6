@@ -4,6 +4,7 @@ use v6.c;
 
 use App::Assixt::Config;
 use App::Assixt::Input;
+use App::Assixt::Output;
 use Config;
 use Dist::Helper::Meta;
 use Dist::Helper::Template;
@@ -33,12 +34,7 @@ multi method run (
 
 		# Make sure it isn't already taken on the local system
 		if ($dir.e) {
-			note qq:to/EOF/;
-				The target directory '{$dir.absolute}' is not empty. Please
-				remove the file or directory at this path or use `--force` to
-				ignore this error. Alternatively, specify a different name to
-				use for the module.
-				EOF
+			err("new.conflict", directory => $dir.absolute);
 
 			$config<runtime><name> = ask("Module name", $config<runtime><name>);
 
@@ -102,7 +98,7 @@ multi method run (
 	# Write some files
 	put-meta(:%meta, path => $dir);
 
-	say "Created new project folder at {$dir.absolute}";
+	out("new", path => $dir.absolute, module => %meta<name>);
 
 	$dir;
 }

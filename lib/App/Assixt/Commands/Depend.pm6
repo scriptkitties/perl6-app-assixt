@@ -2,12 +2,13 @@
 
 use v6.c;
 
+use App::Assixt::Output;
 use Config;
 use Dist::Helper::Meta;
 
 unit class App::Assixt::Commands::Depend;
 
-multi method run(
+multi method run (
 	Str:D $module,
 	Config:D :$config!,
 ) {
@@ -15,34 +16,27 @@ multi method run(
 	my %meta = get-meta($config<cwd>);
 
 	# Install the new dependency with zef
-	unless ($config<runtime><no-install>) {
+	if (!$config<runtime><no-install>) {
 		my $zef = run « zef --cpan install "$module" »;
 
 		if (0 < $zef.exitcode) {
-			note qq:to/EOF/;
-				Failed to install $module with Zef, not adding the
-				dependency. You can skip the local installation and just
-				add the dependency to your module by adding `--no-install`
-				to the command.
-				EOF
+			err("depend.zef", :$module);
 
 			return;
 		}
 	}
 
 	# Add the new dependency if its not listed yet
-	if (%meta<depends> ∌ $module) {
-		%meta<depends>.push: $module;
-	}
+	%meta<depends>.push: $module if %meta<depends> ∌ $module;
 
 	# Write the new META6.json
 	put-meta(%meta, $config<cwd>);
 
 	# And finish off with some user friendly feedback
-	say "$module has been added as a dependency to {%meta<name>}";
+	out("depend", dependency => $module, module => %meta<name>);
 }
 
-multi method run(
+multi method run (
 	*@modules,
 	Config:D :$config!,
 ) {

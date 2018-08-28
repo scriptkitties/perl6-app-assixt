@@ -2,6 +2,7 @@
 
 use v6.c;
 
+use App::Assixt::Output;
 use Config;
 use Dist::Helper::Meta;
 use Dist::Helper::Template;
@@ -15,11 +16,8 @@ method run (
 	my %meta = get-meta($config<cwd>);
 	my $path = $config<cwd>.add("t").add($test).extension("t", :0parts);
 
-	if ($path.e) {
-		note qq:to/EOF/;
-			A file already exists at {$path.absolute}. Remove it, or run this
-			command again with `--force` to ignore this error.
-			EOF
+	if ($path.e && !$config<force>) {
+		err("touch.conflict", path => $path.absolute);
 
 		return;
 	}
@@ -32,7 +30,7 @@ method run (
 	template("module/test", $path, :%context);
 
 	# Inform the user of success
-	say "Added test $test to {%meta<name>}";
+	out("touch", type => "test", file => $path.basename, module => %meta<name>);
 
 	$path;
 }

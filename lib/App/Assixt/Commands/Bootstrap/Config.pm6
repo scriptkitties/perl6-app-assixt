@@ -3,6 +3,7 @@
 use v6.c;
 
 use App::Assixt::Config;
+use App::Assixt::Output;
 use App::Assixt::Input;
 use Config;
 use Dist::Helper::Meta;
@@ -15,11 +16,7 @@ multi method run (
 	Config:D :$config,
 ) {
 	if ($config{$option}:!exists) {
-		note qq:to/EOF/;
-			Not a valid configuration key '$option'. For a list of available
-			configuration keys used in assixt, read the documentation on
-			App::Assixt::Config.
-			EOF
+		err("config.unknown", :$option);
 
 		return;
 	}
@@ -37,7 +34,7 @@ multi method run (
 
 	put-config(:$config, path => $config<config-file>);
 
-	say "Configuration updated";
+	out("config.updated");
 }
 
 multi method run (
@@ -45,11 +42,7 @@ multi method run (
 	Config:D :$config,
 ) {
 	if ($config{$option}:!exists) {
-		note qq:to/EOF/;
-			Not a valid configuration key '$option'. For a list of available
-			configuration keys used in assixt, read the documentation on
-			App::Assixt::Config.
-			EOF
+		err("config.unknown", :$option);
 
 		return;
 	}
@@ -80,7 +73,7 @@ multi method run (
 
 	put-config(:$config, path => $config<config-file>);
 
-	say "Configuration updated";
+	out("config.updated");
 }
 
 

@@ -2,6 +2,7 @@
 
 use v6.c;
 
+use App::Assixt::Output;
 use Config;
 use Dist::Helper::Meta;
 use Dist::Helper::Template;
@@ -31,10 +32,7 @@ multi method run (
 	my Str $template = %files{$type};
 
 	if (!$template) {
-		note qq:to/EOF/;
-			No template by the name '$type'. Read the documentation on
-			App::Assixt::Commands::Touch::Meta to see a list of available meta types.
-			EOF
+		err("touch.meta", type => $type, docs => $?CLASS.^name);
 
 		return
 	}
@@ -42,10 +40,7 @@ multi method run (
 	my IO::Path $output = $config<cwd>.add(self.template-location($template));
 
 	if ($output.e && !$config<force>) {
-		note qq:to/EOF/;
-			A file already exists at {$output.absolute}. Remove the file, or run this command
-			again with `--force` to ignore the error.
-			EOF
+		err("touch.conflict", path => $output.absolute);
 
 		return;
 	}
@@ -63,7 +58,7 @@ multi method run (
 		license => %meta<license>,
 	));
 
-	say "Added $template template";
+	out("touch", type => "meta template", file => $output.basename, module => %meta<name>);
 
 	$output;
 }

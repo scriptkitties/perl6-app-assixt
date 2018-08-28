@@ -3,6 +3,7 @@
 use v6.c;
 
 use App::Assixt::Input;
+use App::Assixt::Output;
 use Config;
 use Dist::Helper::Meta;
 use Version::Semantic;
@@ -20,10 +21,7 @@ multi method run (
 	Config:D :$config,
 ) {
 	if (@bump-levels ∌ $level.lc) {
-		note qq:to/EOF/;
-			Bump level '$level' not recognized. Read the documentation on
-			App::Assixt::Commands::Bump for a list of available bump level.
-			EOF
+		err("error.bump-level", :$level);
 
 		return;
 	}
@@ -51,7 +49,7 @@ multi method run (
 	self!bump-provides($config, ~$version, %meta<provides>.values);
 	self!bump-changelog($config, ~$version);
 
-	say "{%meta<name>} bumped to to {%meta<version>}";
+	out("bump", module => %meta<name>, version => %meta<version>);
 
 	%meta<version>;
 }

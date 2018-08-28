@@ -3,6 +3,7 @@
 use v6.c;
 
 use App::Assixt::Config;
+use App::Assixt::Output;
 use Config;
 
 unit module App::Assixt::Main;
@@ -47,17 +48,12 @@ multi sub MAIN (
 
 	my $lib = "App::Assixt::Commands::$command.tclc()";
 
-	note "Using $lib to handle $command" if $config<verbose>;
+	err("debug.require", module => $lib, intent => $command) if $config<verbose>;
 
 	try require ::($lib);
 
 	if (::($lib) ~~ Failure) {
-		note qq:to/EOF/;
-			Unrecognized command '$command'. You can get a quick synopsis of
-			assixt by running it with `--help`. You can find a list of possible
-			commands with a small description in the documentation for
-			App::Assixt, which you can read with `p6man App::Assixt`.
-			EOF
+		err("error.unknown.main", :$command);
 
 		note ::($lib).Str if $config<verbose>;
 

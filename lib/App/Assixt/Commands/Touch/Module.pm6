@@ -2,6 +2,7 @@
 
 use v6.c;
 
+use App::Assixt::Output;
 use Config;
 use Dist::Helper::Meta;
 use Dist::Helper::Template;
@@ -19,10 +20,7 @@ method run (
 	$lib.=extension("pm6", :0parts);
 
 	if ($lib.e && !$config<force>) {
-		note qq:to/EOF/;
-			A file already exists at {$lib.absolute}. Remove the file, or run this command
-			again with `--force` to ignore the error.
-			EOF
+		err("touch.conflict", path => $lib.absolute);
 
 		return;
 	}
@@ -41,7 +39,7 @@ method run (
 	put-meta(%meta, $config<cwd>);
 
 	# Inform the user of success
-	say "Added $provide to {%meta<name>}";
+	out("touch", type => "module", file => $provide, module => %meta<name>);
 
 	$lib;
 }

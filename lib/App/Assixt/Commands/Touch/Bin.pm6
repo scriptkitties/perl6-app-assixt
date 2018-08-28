@@ -2,6 +2,7 @@
 
 use v6.c;
 
+use App::Assixt::Output;
 use Config;
 use Dist::Helper::Meta;
 use Dist::Helper::Template;
@@ -16,10 +17,7 @@ method run(
 	my $path = $config<cwd>.add("bin").add($provide);
 
 	if ($path.e && !$config<force>) {
-		note qq:to/EOF/;
-			A file already exists at {$path.absolute}. Remove the file, or run this command
-			again with `--force` to ignore the error.
-			EOF
+		err("touch.conflict");
 
 		return;
 	}

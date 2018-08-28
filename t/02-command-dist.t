@@ -120,7 +120,7 @@ subtest "Dist with missing source-url", {
 
 	output-like {
 		App::Assixt::Commands::Dist.run($module, :$config);
-	}, / ^^ "The `source-url` is missing" /, "Missing source-url error is shown";
+	}, / ^^ "The `source-url` key is missing in the module's META6.json." /, "Missing source-url error is shown";
 }
 
 # vim: ft=perl6 noet

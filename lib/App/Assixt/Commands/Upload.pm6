@@ -4,86 +4,78 @@ use v6.c;
 
 use App::Assixt::Config;
 use App::Assixt::Input;
+use App::Assixt::Output;
 use CPAN::Uploader::Tiny;
 use Config;
 
-class App::Assixt::Commands::Upload
-{
-	multi method run(
-		IO::Path:D $dist,
-		Config:D :$config,
-	) {
-		$config<runtime><pause-id> //= $config<pause><id> // ask("PAUSE ID", default => $*USER.Str);
-		$config<runtime><pause-password> //= $config<pause><password> // password("PAUSE password");
+unit class App::Assixt::Commands::Upload;
 
-		my Int $tries = 1;
+multi method run(
+	IO::Path:D $dist,
+	Config:D :$config,
+) {
+	$config<runtime><pause-id> //= $config<pause><id> // ask("PAUSE ID", default => $*USER.Str);
+	$config<runtime><pause-password> //= $config<pause><password> // password("PAUSE password");
 
-		while ($tries ≤ $config<pause><tries>) {
-			CATCH {
-				when $_.payload ~~ / ^ "401 Unauthorized" / {
-					note q:to/EOF/;
-						Your user credentials were incorrect, please re-try entering your credentials. If you
-						are sure your credentials are correct, hit the enter key to retry those credentials.
-						EOF
+	my Int $tries = 1;
 
-					$config<runtime><pause-id> = ask("PAUSE ID", default => $config<runtime><pause-id>);
-					$config<runtime><pause-password> = password("PAUSE password") || $config<runtime><pause-password>;
-					$tries++;
-				}
+	while ($tries ≤ $config<pause><tries>) {
+		CATCH {
+			when $_.payload ~~ / ^ "401 Unauthorized" / {
+				err("upload.credentials");
 
-				when $_.payload ~~ / ^ "409 Conflict" / {
-					note q:to/EOF/;
-						The distribution you're trying to upload conflicts with an existing file on CPAN. You
-						should probably update the version of your module. You can do this with `assixt bump`
-						Create a new distribution with `assixt dist` after that, and try to upload the new
-						dist.
-						EOF
-
-					return;
-				}
+				$config<runtime><pause-id> = ask("PAUSE ID", default => $config<runtime><pause-id>);
+				$config<runtime><pause-password> = password("PAUSE password") || $config<runtime><pause-password>;
+				$tries++;
 			}
 
-			say "Attempt #$tries...";
-
-			my CPAN::Uploader::Tiny $uploader .= new(
-				user => $config<runtime><pause-id>,
-				password => $config<runtime><pause-password>,
-				agent => "Assixt/0.5.0",
-			);
-
-			if ($uploader.upload($dist.absolute)) {
-				# Report success to the user
-				say "Uploaded {$dist.basename} to CPAN";
+			when $_.payload ~~ / ^ "409 Conflict" / {
+				err("upload.conflict");
 
 				return;
 			}
-
-			$tries++;
 		}
 
-		say "Uploading to CPAN failed, gave up after $tries unsuccesful tries.";
-	}
+		say "Attempt #$tries...";
 
-	multi method run (
-		Str:D $dist,
-		Config:D :$config,
-	) {
-		self.run($dist.IO, :$config);
-	}
+		my CPAN::Uploader::Tiny $uploader .= new(
+			user => $config<runtime><pause-id>,
+			password => $config<runtime><pause-password>,
+			agent => "Assixt/0.5.0",
+		);
 
-	multi method run(
-		Str @dists,
-		Config:D :$config,
-	) {
-		$config<runtime><pause-id> //= $config<pause><id> // ask("PAUSE ID", default => $*USER.Str);
-		$config<runtime><pause-password> //= $config<pause><password> // password("PAUSE password");
+		if ($uploader.upload($dist.absolute)) {
+			# Report success to the user
+			out("upload", dist => $dist.basename);
 
-		for @dists -> $dist {
-			self.run(
-				$dist.IO.absolute,
-				:$config,
-			);
+			return;
 		}
+
+		$tries++;
+	}
+
+	err("upload.gave-up", :$tries);
+}
+
+multi method run (
+	Str:D $dist,
+	Config:D :$config,
+) {
+	self.run($dist.IO, :$config);
+}
+
+multi method run(
+	Str @dists,
+	Config:D :$config,
+) {
+	$config<runtime><pause-id> //= $config<pause><id> // ask("PAUSE ID", default => $*USER.Str);
+	$config<runtime><pause-password> //= $config<pause><password> // password("PAUSE password");
+
+	for @dists -> $dist {
+		self.run(
+			$dist.IO.absolute,
+			:$config,
+		);
 	}
 }
 

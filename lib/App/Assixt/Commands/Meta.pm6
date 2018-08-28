@@ -2,6 +2,7 @@
 
 use v6.c;
 
+use App::Assixt::Output;
 use Config;
 
 unit class App::Assixt::Commands::Meta;
@@ -12,17 +13,14 @@ multi method run (
 ) {
 	my $type = @args.shift;
 	my $formatted-type = $type.split("-", :g)».tclc.join();
-	my $lib = "App::Assixt::Commands::Meta::$formatted-type";
+	my $lib = "{$?CLASS.^name}::$formatted-type";
 
-	note "Using $lib to handle $type" if $config<verbose>;
+	err("debug.require", module => $lib, intent => $type) if $config<verbose>;
 
 	try require ::($lib);
 
 	if (::($lib) ~~ Failure) {
-		note qq:to/EOF/;
-			Unknown subcommand '$type' for `meta`. Read the documentation on
-			App::Assixt::Commands::Meta for a list of available subcommands.
-			EOF
+		err("error.subcommand", command => $type, docs => $?CLASS.^name);
 
 		note ::($lib).Str if $config<verbose>;
 
@@ -35,10 +33,7 @@ multi method run (
 multi method run (
 	Config:D :$config,
 ) {
-	note q:to/EOF/;
-		The 'meta' command requires a specific subcommand to be given. For a list of
-		available subcommands, check the App::Assixt::Commands::Meta documentation.
-		EOF
+	err("error.subcommand.missing", command => "meta", docs => $?CLASS.^name);
 }
 
 =begin pod

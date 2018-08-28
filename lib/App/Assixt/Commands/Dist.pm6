@@ -2,6 +2,7 @@
 
 use v6.c;
 
+use App::Assixt::Output;
 use App::Assixt::Config;
 use Config;
 use Dist::Helper::Meta;
@@ -15,23 +16,14 @@ multi method run (
 	IO::Path:D $path,
 	Config:D :$config,
 ) {
-	if (!$path.add("./META6.json").IO.e) {
-		note qq:to/EOF/;
-			No META6.json in {$path.absolute}. Are you sure you're in a
-			Perl 6 module directory? You can also specify a path to a Perl
-			6 module directory as an argument to make a distribution of
-			that module.
-
-			EOF
+	if (!$path.add("META6.json").IO.e) {
+		err("error.meta6", path => $path.absolute);
 
 		return;
 	}
 
 	if (!which("tar")) {
-		note q:to/EOF/;
-			'tar' is not available on this system. Please use your
-			operating system's package manager to install it.
-			EOF
+		err("error.command.missing", command => "tar");
 
 		return;
 	}
@@ -40,10 +32,7 @@ multi method run (
 
 	# Check for required META6.json elements
 	if (!%meta<source-url> && !$config<force>) {
-		note q:to/EOF/;
-			The `source-url` is missing. Either set it using
-			`assixt meta source-url <url>`, or use `--force` to ignore this error.
-			EOF
+		err("error.meta6.missing-key", key => "source-url");
 
 		return;
 	}
@@ -57,11 +46,7 @@ multi method run (
 	mkdir $output.parent;
 
 	if ($output.e && !$config<force>) {
-		note qq:to/EOF/;
-			A distribution tarball already exists at {$output.absolute}.
-			Remove this file or run this command again with `--force` to
-			ignore this error.
-			EOF
+		err("dist.conflict", path => $output.absolute);
 
 		return;
 	}
@@ -70,10 +55,7 @@ multi method run (
 
 	# Ensure there's a viable README file
 	if (!self.ensure-readme($path, :$config) && !$config<force>) {
-		note q:to/EOF/;
-			No usable README file found! Add a README.pod6 using `assixt
-			touch meta readme.pod6`, or use --force to skip this check.
-			EOF
+		err("dist.readme");
 
 		return;
 	}
@@ -106,7 +88,7 @@ multi method run (
 	# Remove the generated README, if any.
 	unlink $readme if $readme;
 
-	say "Created {$output.absolute}";
+	out("dist", path => $output.absolute);
 
 	if ($config<verbose>) {
 		my $list = run « tar tf "{$output.absolute}" », :out;
@@ -129,10 +111,7 @@ multi method run (
 multi method run (
 	Config:D :$config,
 ) {
-	self.run(
-		".",
-		:$config,
-	)
+	samewith(".", :$config);
 }
 
 multi method run (
@@ -140,11 +119,7 @@ multi method run (
 	Config:D :$config,
 ) {
 	for @paths -> $path {
-		self.run(
-			"dist",
-			$path,
-			:$config,
-		);
+		samewith($path, :$config);
 	}
 }
 
@@ -184,15 +159,9 @@ method make-readme (
 		$exit-code = $converter.exitcode while $exit-code < 0;
 
 		if ($exit-code) {
-			note q:to/EOF/;
-				You need Pod::To::Markdown to use Pod 6 documents as
-				README. You can install this with zef: `zef install
-				Pod::To::Markdown`.
-				EOF
+			err("dist.readme.dependency", module => "Pod::To::Markdown");
 
-			if ($config<verbose>) {
-				$converter.err.slurp.note;
-			}
+			$converter.err.slurp.note if $config<verbose>;
 
 			next;
 		}

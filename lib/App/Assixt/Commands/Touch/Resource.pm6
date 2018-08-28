@@ -2,6 +2,7 @@
 
 use v6.c;
 
+use App::Assixt::Output;
 use Config;
 use Dist::Helper::Meta;
 
@@ -20,10 +21,7 @@ method run(
 
 	# Check for duplicate entry
 	if (%meta<resources> ∋ $path.relative($resources) && !$config<force>) {
-		note qq:to/EOF/;
-			A file already exists at {$path.absolute}. Remove the file, or run
-			this command again with `--force` to ignore the error.
-			EOF
+		err("touch.conflict", path => $path.absolute);
 
 		return;
 	}
@@ -39,7 +37,7 @@ method run(
 	put-meta(%meta, $config<cwd>);
 
 	# User-friendly output
-	say "Added resource $resource to {%meta<name>}";
+	out("touch", type => "resource", file => $path.relative($resources), module => %meta<name>);
 
 	$resource;
 }
