@@ -11,46 +11,37 @@ use Dist::Helper::Meta;
 use Dist::Helper::Path;
 use Dist::Helper;
 
-class App::Assixt::Commands::Push
-{
-	multi method run(
-		Str:D $path,
-		Config:D :$config,
-	) {
-		chdir $path;
+unit class App::Assixt::Commands::Push;
 
-		App::Assixt::Commands::Bump.run(:$config) unless $config<runtime><no-bump>;
+multi method run(
+	Str:D $path,
+	Config:D :$config,
+) {
+	App::Assixt::Commands::Bump.run(:$config) unless $config<runtime><no-bump>;
 
-		my Str $dist = App::Assixt::Commands::Dist.run(:$config);
+	my IO::Path $dist = App::Assixt::Commands::Dist.run(:$config);
 
-		if (!$dist) {
-			note "Failed to create distribution tarball.";
+	if (!$dist) {
+		note "Failed to create distribution tarball.";
 
-			return;
-		}
-
-		App::Assixt::Commands::Upload.run($dist, :$config);
+		return;
 	}
 
-	multi method run(
-		Config:D :$config,
-	) {
-		self.run(
-			".",
-			:$config,
-		)
-	}
+	App::Assixt::Commands::Upload.run($dist, :$config);
+}
 
-	multi method run(
-		Str @paths,
-		Config:D :$config,
-	) {
-		for @paths -> $path {
-			self.run(
-				$path,
-				:$config,
-			)
-		}
+multi method run (
+	Config:D :$config,
+) {
+	samewith(".", :$config);
+}
+
+multi method run (
+	Str @paths,
+	Config:D :$config,
+) {
+	for @paths -> $path {
+		samewith($path, :$config);
 	}
 }
 

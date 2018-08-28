@@ -5,7 +5,7 @@ use v6.c;
 use Config;
 use Dist::Helper::Meta;
 
-unit class App::Assixt::Commands::Depend
+unit class App::Assixt::Commands::Depend;
 
 multi method run(
 	Str:D $module,
