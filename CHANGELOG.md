@@ -28,6 +28,7 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 - The `upload` command now makes use of `CPAN::Uploader::Tiny`.
 - The `upload` command will now generate a more specific and friendly error
   message (if possible) as to why uploading failed.
+- Error messages have been updated to be more user friendly.
 
 ## [0.5.0] - 2018-08-25
 ### Added
