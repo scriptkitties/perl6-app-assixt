@@ -24,10 +24,7 @@ multi method run (
 ) {
 	my %meta = get-meta($config<cwd>.absolute);
 
-	self.run(
-		ask("source-url", %meta<source-url>),
-		:$config
-	);
+	samewith(ask("source-url", %meta<source-url> // ""), :$config);
 }
 
 =begin pod
